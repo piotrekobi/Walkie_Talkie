@@ -21,7 +21,7 @@ s.connect(('144.126.244.194', port))
 def receive(soc):
     while True:
         try:
-            recording = soc.recv(18000)
+            recording = soc.recv(9000)
             print(f'received: {len(recording)}')
             recording = pickle.loads(recording)
             duration = 0.05

@@ -40,7 +40,7 @@ class SocketSoundServer:
 
     def run_client(self, current_connection):
         while True:
-            data = current_connection.recv(18000)
+            data = current_connection.recv(9000)
             for connection in self.connections:
                 if current_connection != connection:
                     try:
