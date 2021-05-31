@@ -24,7 +24,7 @@ def receive(soc):
             print(f'received: {len(recording)}')
             recording = pickle.loads(recording)
             sr = 44100
-            sd.playrec(recording, sr, channels=1)
+            sd.play(recording, sr)
             sd.wait()
         except Exception as e:
             print(e)
