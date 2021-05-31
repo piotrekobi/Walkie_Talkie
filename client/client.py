@@ -1,20 +1,19 @@
+# Import socket module 
 import socket
-import sys
 
-# Create socket for server
-s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
-# # s.connect(('144.126.244.194', 10000))
+# Create a socket object 
+s = socket.socket()
 
-# Let's send data through UDP protocol
-while True:
+# Define the port on which you want to connect 
+port = 10000
 
-    # s.send(send_data.encode('utf-8'))
+# connect to the server on local computer 
+s.connect(('144.126.244.194', port))
 
-    # print("\n\n 1. Client Sent : ", send_data, "\n\n")
-    send_data = input("Tekst: ")
-    s.sendto(send_data.encode('utf-8'), ('144.126.244.194', 10000))
-    data, address = s.recvfrom(24)
-    print("\n\n 2. Client received : ", data.decode('utf-8'), "\n\n")
-    # print(s.recv(1024))
-# close the socket
+# receive data from the server 
+print(s.recv(1024))
+
+s.send(b'dzwek z mikofonu')
+
+# close the connection 
 s.close()
