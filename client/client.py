@@ -5,6 +5,7 @@ import soundfile as sf
 import numpy as np
 import pickle
 import threading
+import time
 
 
 # Create a socket object
@@ -23,8 +24,10 @@ def receive(soc):
             recording = soc.recv(18000)
             print(f'received: {len(recording)}')
             recording = pickle.loads(recording)
+            duration = 0.05
             sr = 44100
-            sd.play(recording, sr, blocking=True)
+            sd.play(recording, sr, blocking=False)
+            time.sleep(duration)
         except Exception as e:
             print(e)
 
