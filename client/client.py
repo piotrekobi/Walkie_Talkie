@@ -19,13 +19,21 @@ s.connect(('144.126.244.194', port))
 
 def receive(soc):
     while True:
-        print(soc.recv(1000).decode('utf-8'))
+        recording = soc.recv(18000)
+        recording = pickle.loads(recording)
+        sr = 44100
+        sd.play(recording, sr, channels=1)
+        sd.wait()
 
 
 def send(soc):
     while True:
-        text = input('Wiadomość: ')
-        soc.send(text.encode('utf-8'))
+        sr = 44100
+        duration = 0.1
+        recording = sd.rec(int(duration * sr), samplerate=sr, channels=1)
+        sd.wait()
+        recording = pickle.dumps(recording)
+        soc.send(recording)
 
 
 threading.Thread(target=receive, args=(s,)).start()
