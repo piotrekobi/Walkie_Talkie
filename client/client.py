@@ -9,13 +9,16 @@ import time
 
 
 # Create a socket object
-s = socket.socket()
+s_mic = socket.socket()
+s_audio = socket.socket()
 
 # Define the port on which you want to connect
-port = 10000
+port_mic = 10000
+port_audio = 10001
 
 # connect to the server on local computer
-s.connect(('144.126.244.194', port))
+s_mic.connect(('144.126.244.194', port_mic))
+s_audio.connect(('144.126.244.194', port_audio))
 
 
 def receive(soc):
@@ -44,8 +47,8 @@ def send(soc):
             print(e)
 
 
-threading.Thread(target=receive, args=(s,)).start()
-threading.Thread(target=send, args=(s,)).start()
+threading.Thread(target=receive, args=(s_audio,)).start()
+threading.Thread(target=send, args=(s_mic,)).start()
 
 # receive data from the server
 #print(s.recv(17795))
