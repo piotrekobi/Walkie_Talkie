@@ -21,7 +21,7 @@ s.connect(('144.126.244.194', port))
 def receive(soc):
     while True:
         try:
-            recording = soc.recv(9000)
+            recording = soc.recv(2205)
             print(f'received: {len(recording)}')
             recording = np.frombuffer(recording, dtype=np.float32)
             duration = 0.05
