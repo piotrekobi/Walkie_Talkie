@@ -26,7 +26,8 @@ def receive(soc):
             recording = np.frombuffer(recording, dtype=np.float32)
             print(f'received2: {len(recording)}')
             sr = 44100
-            sd.play(recording, sr, blocking=True)
+            # sd.play(recording, sr, blocking=True)
+            # time.sleep(0.05)
         except Exception as e:
             print(e)
 
