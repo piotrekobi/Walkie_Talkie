@@ -52,7 +52,6 @@ class SocketSoundServer:
         while True:
             c, addr = self.socket.accept()
             self.connections.append(c)
-            c.send(b'Thank you for connecting')
             threading.Thread(target=self.run_client, args=(c,)).start()
 
 
