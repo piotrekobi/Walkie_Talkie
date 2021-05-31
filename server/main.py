@@ -1,41 +1,61 @@
-# first of all import the socket library
 import socket
+import threading
 
-# next create a socket object
-s = socket.socket()
-print("Socket successfully created")
 
-# reserve a port on your computer in our
-# case it is 12345 but it can be anything
-port = 10000
+class SocketSoundServer:
+    def __init__(self, port, address):
+        self.connections = []
+        self.server = None
+        self.socket = None
+        self.ip = address
+        self.port = port
 
-# Next bind to the port
-# we have not typed any ip in the ip field
-# instead we have inputted an empty string
-# this makes the server listen to requests
-# coming from other computers on the network
-s.bind(('', port))
-print("socket binded to %s" % (port))
+    def start(self):
+        self.socket = socket.socket()
+        print("Socket successfully created")
 
-# put the socket into listening mode
-s.listen(5)
-print("socket is listening")
+        self.socket.bind((self.ip, self.port))
+        print(f"socket binded to {self.port}")
 
-# a forever loop until we interrupt it or
-# an error occurs
-connections = []
-while True:
-    # Establish connection with client.
+        self.socket.listen(5)
+        print("socket is listening")
 
-    c, addr = s.accept()
-    print('Got connection from', addr)
+        self.server = threading.Thread(target=self.run_server)
+        self.server.start()
 
-    # send a thank you message to the client.
-    c.send(b'Thank you for connecting')
+        try:
+            while True:
+                pass
+        except KeyboardInterrupt:
+            self.close()
 
-    xd = c.recv(2048)
+    def close(self):
+        for connection in self.connections:
+            try:
+                connection.close()
+            except Exception:
+                pass
 
-    print(xd)
+        self.socket.close()
 
-    # Close the connection with the client
-    c.close()
+    def run_client(self, current_connection):
+        while True:
+            data = current_connection.recv(18000)
+            for connection in self.connections:
+                if current_connection != connection:
+                    try:
+                        connection.send(data)
+                    except BrokenPipeError:
+                        self.connections.remove(connection)
+
+    def run_server(self):
+        while True:
+            c, addr = self.socket.accept()
+            self.connections.append(c)
+            c.send(b'Thank you for connecting')
+            threading.Thread(target=self.run_client, args=(c,)).start()
+
+
+if __name__ == "__main__":
+    server = SocketSoundServer(10000, '')
+    server.start()
