@@ -16,9 +16,13 @@ s_audio = socket.socket()
 port_mic = 10000
 port_audio = 10001
 
+ID = b'1234'
+
 # connect to the server on local computer
 s_mic.connect(('144.126.244.194', port_mic))
+s_mic.send(ID)
 s_audio.connect(('144.126.244.194', port_audio))
+s_audio.send(ID)
 
 
 def receive(soc):
@@ -65,4 +69,5 @@ try:
     while True:
         pass
 except KeyboardInterrupt:
-    s.close()
+    s_mic.close()
+    s_audio.close()
