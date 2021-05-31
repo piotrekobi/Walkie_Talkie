@@ -21,7 +21,7 @@ def receive(soc):
     while True:
         try:
             recording = soc.recv(18000)
-            print('received: ' + len(recording))
+            print(f'received: {len(recording)}')
             recording = pickle.loads(recording)
             sr = 44100
             sd.play(recording, sr, channels=1)
@@ -38,7 +38,7 @@ def send(soc):
             recording = sd.rec(int(duration * sr), samplerate=sr, channels=1)
             sd.wait()
             recording = pickle.dumps(recording)
-            print('packed: ' + len(recording))
+            print(f'packed: {len(recording)}')
             soc.send(recording)
         except Exception as e:
             print(e)
