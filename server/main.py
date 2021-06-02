@@ -53,6 +53,7 @@ class SocketSoundServer:
         try:
             self.connections[user_id]
         except KeyError:
+
             class Cons:
                 def __init__(self):
                     self.c_in = None
@@ -69,7 +70,10 @@ class SocketSoundServer:
 
             self.connections[user_id].c_in = c
 
-            threading.Thread(target=self.run_client, args=(user_id, c,)).start()
+            threading.Thread(target=self.run_client, args=(
+                user_id,
+                c,
+            )).start()
 
     def run_server_out(self):
         while True:
