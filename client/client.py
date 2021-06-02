@@ -1,73 +1,104 @@
 # Import socket module
 import socket
-import sounddevice as sd
-import soundfile as sf
-import numpy as np
-import pickle
 import threading
-import time
+import queue
+import sys
 
-# Create a socket object
-s_mic = socket.socket()
-s_audio = socket.socket()
+import numpy as np
+import sounddevice as sd
 
-# Define the port on which you want to connect
-port_mic = 10000
-port_audio = 10001
+SERVER_IP = '144.126.244.194'
+
+MIC_PORT = 10000
+SPEAKER_PORT = 10001
 
 ID = b'999'
 
-# connect to the server on local computer
-s_mic.connect(('144.126.244.194', port_mic))
-s_mic.send(ID)
-s_audio.connect(('144.126.244.194', port_audio))
-s_audio.send(ID)
+
+def server_output_stream(source_q):
+    print('Starting server_output_stream')
+
+    soc = socket.socket()
+    soc.connect((SERVER_IP, MIC_PORT))
+    soc.send(ID)
+
+    while True:
+        try:
+            array = source_q.get()
+            soc.send(array[0].tobytes())
+        except Exception as e:
+            print(e)
 
 
-def receive(soc):
+def server_input_stream(target_q):
+    print('Starting server_input_stream')
+
+    soc = socket.socket()
+    soc.connect((SERVER_IP, SPEAKER_PORT))
+    soc.send(ID)
+
     while True:
         try:
             recording = soc.recv(100000)
-            print(f'received: {len(recording)}')
             recording = np.frombuffer(recording, dtype=np.float32)
-            print(f'received2: {len(recording)}')
-            sr = 44100
-            sd.play(recording, sr, blocking=False)
+            target_q.put((recording.copy(), 'ok'))
         except Exception as e:
             print(e)
 
 
-def send(soc):
-    while True:
-        try:
-            sr = 44100
-            duration = 0.05
-            recording = sd.rec(int(duration * sr),
-                               samplerate=sr,
-                               channels=1,
-                               blocking=False)
-            print(f'packed: {len(recording.tobytes())}')
-            soc.send(recording.tobytes())
-        except Exception as e:
-            print(e)
+def sound_output_stream(source_q):
+    print('Starting sound_output_stream')
+
+    def callback(out_data, frame_count, time_info, status):
+        out_data[:] = source_q.get()
+
+    stream = sd.OutputStream(callback=callback, channels=1, dtype=np.float32)
+
+    with stream:
+        while True:
+            pass
 
 
-threading.Thread(target=receive, args=(s_audio, )).start()
-threading.Thread(target=send, args=(s_mic, )).start()
+def sound_input_stream(target_q):
+    print('Starting sound_input_stream')
 
-# receive data from the server
-#print(s.recv(17795))
-#sr = 44100
-#duration = 0.1
-#myrecording = sd.rec(int(duration * sr), samplerate=sr, channels=1)
-#sd.wait()
-#myrecording = pickle.dumps(myrecording)
-#print(len(myrecording))
-#s.send(myrecording)
+    def callback(in_data, frame_count, time_info, status):
+        target_q.put((in_data.copy(), status))
 
-try:
-    while True:
-        pass
-except KeyboardInterrupt:
-    s_mic.close()
-    s_audio.close()
+    stream = sd.InputStream(callback=callback, channels=1, dtype=np.float32)
+
+    with stream:
+        while True:
+            pass
+
+
+def main():
+    try:
+        print('Starting...')
+        mic = queue.Queue()
+        print('Mic queue created...')
+        speaker = queue.Queue()
+        print('Speaker queue created...')
+
+        threads = [
+            threading.Thread(target=sound_input_stream, args=(mic,)),
+            threading.Thread(target=server_input_stream, args=(speaker,)),
+            threading.Thread(target=sound_output_stream, args=(speaker,)),
+            threading.Thread(target=server_output_stream, args=(mic,))
+        ]
+
+        for thread in threads:
+            thread.start()
+
+        while True:
+            pass
+    except KeyboardInterrupt:
+        for thread in threads:
+            thread.ex
+
+        sys.exit('\nInterrupted... Stoping program')
+
+
+if __name__ == "__main__":
+    main()
+
