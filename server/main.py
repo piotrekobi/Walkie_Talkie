@@ -1,5 +1,6 @@
 import socket
 import threading
+import queue
 
 
 class SocketSoundServer:
@@ -77,7 +78,7 @@ class SocketSoundServer:
 
     def run_server_out(self):
         while True:
-            c, addr = self.socket_in.accept()
+            c, addr = self.socket_out.accept()
             user_id = c.recv(2048)
 
             self.init_id(user_id)
