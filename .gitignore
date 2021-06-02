@@ -1,0 +1,5 @@
+.vscode
+.idea
+client/config
+test.py
+__pycache__
