@@ -15,7 +15,7 @@ SERVER_IP = '144.126.244.194'
 MIC_PORT = 10000
 SPEAKER_PORT = 10001
 
-ID = b'999'
+ID = b'555'
 
 
 def server_output_stream(source_q):
@@ -60,7 +60,10 @@ def server_input_stream(target_q):
 def sound_output_stream(source_q):
     print('Starting sound_output_stream')
 
-    stream = sd.OutputStream(channels=1, dtype=np.float32, blocksize=FRAMESIZE, samplerate=SAMPLERATE)
+    stream = sd.OutputStream(channels=1,
+                             dtype=np.float32,
+                             blocksize=FRAMESIZE,
+                             samplerate=SAMPLERATE)
 
     with stream:
         while True:
@@ -71,7 +74,10 @@ def sound_output_stream(source_q):
 def sound_input_stream(target_q):
     print('Starting sound_input_stream')
 
-    stream = sd.InputStream(channels=1, dtype=np.float32, blocksize=FRAMESIZE, samplerate=SAMPLERATE)
+    stream = sd.InputStream(channels=1,
+                            dtype=np.float32,
+                            blocksize=FRAMESIZE,
+                            samplerate=SAMPLERATE)
 
     with stream:
         while True:
@@ -88,10 +94,18 @@ def main():
         print('Speaker queue created...')
 
         threads = [
-            threading.Thread(target=sound_input_stream, args=(mic,), name='sound_input_stream'),
-            threading.Thread(target=server_input_stream, args=(speaker,), name='server_input_stream'),
-            threading.Thread(target=sound_output_stream, args=(speaker,), name='sound_output_stream'),
-            threading.Thread(target=server_output_stream, args=(mic,), name='server_output_stream')
+            threading.Thread(target=sound_input_stream,
+                             args=(mic, ),
+                             name='sound_input_stream'),
+            threading.Thread(target=server_input_stream,
+                             args=(speaker, ),
+                             name='server_input_stream'),
+            threading.Thread(target=sound_output_stream,
+                             args=(speaker, ),
+                             name='sound_output_stream'),
+            threading.Thread(target=server_output_stream,
+                             args=(mic, ),
+                             name='server_output_stream')
         ]
 
         for thread in threads:
@@ -106,4 +120,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

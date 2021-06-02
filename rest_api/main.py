@@ -1,39 +1,36 @@
-from flask import Flask
+from flask import Flask, request
 from flask_restful import Resource, Api
-import json
+
+from channel_func import find_channel, delete_channel, channel_info, \
+     detailed_channel_info, create_channel, load_channels
 
 app = Flask(__name__)
 api = Api(app)
-
-with open("channels.json", "r") as f:
-    channels = json.load(f)
+channels = load_channels("channels.json")
 
 
 class Channels(Resource):
     def get(self):
-        channel_list = [{"id": c["id"], "name": c["name"]} for c in channels]
-        return channel_list
+        return [{"id": c["id"], "name": c["name"]} for c in channels]
+
+    def post(self):
+        return create_channel(request.get_json(), channels)
 
 
 class ChannelId(Resource):
     def get(self, channel_id):
-        try:
-            return f"channel_id - {channels[channel_id - 1].get('name')}"
-        except IndexError:
-            return "Invalid channel ID"
+        return channel_info(channel_id, channels)
+
+    def delete(self, channel_id):
+        return delete_channel(channel_id, channels)
 
 
 class ChannelIdPass(Resource):
     def get(self, channel_id, password):
-        try:
-            channel = channels[channel_id - 1]
-            if channel["password"] == password:
-                return channel
-            else:
-                return "Wrong password"
+        return detailed_channel_info(channel_id, channels, password)
 
-        except IndexError:
-            return "Invalid channel ID"
+    def delete(self, channel_id, password):
+        return delete_channel(channel_id, channels, password)
 
 
 api.add_resource(Channels, '/channels')
