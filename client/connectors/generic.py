@@ -70,14 +70,14 @@ class InputConnector(GenericConnector):
         self.setup()
 
         while self.started:
-            self.queue.put(await self.await_frame())
+            self.queue.put(self.await_frame())
 
         self.destroy()
 
     def setup(self):
         raise NotImplementedError
 
-    async def await_frame(self):
+    def await_frame(self):
         raise NotImplementedError
 
     def destroy(self):

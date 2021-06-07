@@ -2,6 +2,8 @@ from connectors.sound import DeviceSoundOutputConnector, DeviceSoundInputConnect
 from connectors.server import ServerSoundOutputConnector, ServerSoundInputConnector
 from connectors.pipe import ConnectorPipe
 
+from config.sound import FRAME_SIZE, SAMPLE_SIZE
+
 
 class ConnectionStartedError(ConnectionError):
     pass
@@ -38,15 +40,15 @@ class CallController:
                 connection_id=f'{channel_id}-{self.user_id}'
             ),
             DeviceSoundOutputConnector(
-                frame_size=2048,
-                sample_rate=44100
+                frame_size=FRAME_SIZE,
+                sample_rate=SAMPLE_SIZE
             )
         )
 
         self.mic_pipe = ConnectorPipe(
             DeviceSoundInputConnector(
-                frame_size=2048,
-                sample_rate=44100
+                frame_size=FRAME_SIZE,
+                sample_rate=SAMPLE_SIZE
             ),
             ServerSoundOutputConnector(
                 url=self.url,

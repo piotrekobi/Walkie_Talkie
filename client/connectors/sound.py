@@ -1,4 +1,4 @@
-from generic_connectors import OutputConnector, InputConnector
+from connectors.generic import OutputConnector, InputConnector
 
 import sounddevice as sd
 
@@ -59,7 +59,7 @@ class DeviceSoundInputConnector(InputConnector):
 
         self.stream.start()
 
-    async def await_frame(self):
+    def await_frame(self):
         try:
             return self.stream.read(self.frame_size)
         except Exception as e:

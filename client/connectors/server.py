@@ -1,4 +1,4 @@
-from generic_connectors import OutputConnector, InputConnector
+from connectors.generic import OutputConnector, InputConnector
 
 import socket
 import numpy as np
@@ -62,7 +62,7 @@ class ServerSoundInputConnector(InputConnector, ServerConnector):
     def setup(self):
         self.setup_server()
 
-    async def await_frame(self):
+    def await_frame(self):
         try:
             recording = np.frombuffer(self.soc.recv(100000), dtype='float32')
             return recording
