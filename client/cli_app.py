@@ -10,6 +10,7 @@ class EventBus:
     def subscribe(self, event_name, callback):
         pass
 
+
 class Event:
     def __init__(self, name, data):
         pass

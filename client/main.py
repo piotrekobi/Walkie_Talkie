@@ -10,6 +10,11 @@ if __name__ == '__main__':
         user_id=USER_ID
     )
 
+    call_controller.connect(10)
+
+    while True:
+        pass
+
     cli_app = CLIApp(
         SelectView(
             title='Internetowe Walke-Talke',

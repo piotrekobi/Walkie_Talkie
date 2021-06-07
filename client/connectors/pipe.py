@@ -1,4 +1,5 @@
-from logging import Logger
+import logging
+import sys
 from queue import Queue
 
 
@@ -8,7 +9,8 @@ class ConnectorPipe:
             raise IndexError
 
         self.queues = []
-        self.logger = Logger()
+
+        self.logger = logging.Logger(name='logger')
 
         self.start_connector = args[0]
         self.middle_connectors = args[1:-1]

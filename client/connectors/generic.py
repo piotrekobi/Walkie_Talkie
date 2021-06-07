@@ -16,6 +16,7 @@ class GenericConnector:
     logger: Logger
     started: bool
     name: str
+    thread: Thread
 
     def __init__(self):
         self.started = False
@@ -26,8 +27,9 @@ class GenericConnector:
         self.queue = queue
         self.logger = logger
         self.started = True
-        
-        Thread(target=self.__start__, name=self.name)
+
+        self.thread = Thread(target=self.__start__, name=self.name)
+        self.thread.start()
 
     def __start__(self):
         raise NotImplementedError

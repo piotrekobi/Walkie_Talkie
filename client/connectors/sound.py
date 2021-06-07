@@ -61,7 +61,7 @@ class DeviceSoundInputConnector(InputConnector):
 
     def await_frame(self):
         try:
-            return self.stream.read(self.frame_size)
+            return self.stream.read(self.frame_size)[0]
         except Exception as e:
             self.logger.error(e)
 

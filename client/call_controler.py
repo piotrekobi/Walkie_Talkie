@@ -30,6 +30,7 @@ class CallController:
         self.connected = False
 
     def connect(self, channel_id: int):
+        print(channel_id)
         if self.connected:
             raise ConnectionStartedError()
 
