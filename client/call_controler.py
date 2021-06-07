@@ -53,7 +53,7 @@ class CallController:
             ),
             ServerSoundOutputConnector(
                 url=self.url,
-                port=self.speaker_port,
+                port=self.mic_port,
                 connection_id=f'{channel_id}-{self.user_id}'
             )
         )
