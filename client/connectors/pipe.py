@@ -11,6 +11,7 @@ class ConnectorPipe:
         self.queues = []
 
         self.logger = logging.Logger(name='logger')
+        self.logger.addHandler(logging.StreamHandler())
 
         self.start_connector = args[0]
         self.middle_connectors = args[1:-1]
