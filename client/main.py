@@ -26,7 +26,7 @@ if __name__ == '__main__':
         SelectView(title='Internetowe Walkie-Talkie',
                    top_text='Wybrany kanał:',
                    options=[
-                       ListView(title='Zobacz Dostępne kanały',
+                       ListView(title='Wybierz kanał',
                                 top_text="Dostępne kanały:",
                                 item_list=available_channels),
                        GenericView(title='Rozpocznij połączenie'),

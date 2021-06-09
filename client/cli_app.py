@@ -77,30 +77,44 @@ class ListView(GenericView):
         self.item_list = item_list
         self.cursor_pos = [0, 0]
         self.choice = None
-        self.set_cursor_max()
+
+    def show(self, screen, event_bus=None):
+        self.running = True
+        self.screen = screen
+        self.event_bus = event_bus
+
+        while self.running:
+            self.set_max_y_x()
+            self.set_cursor_max()
+            self.draw()
+            self.event_loop()
 
     def draw(self):
         self.screen.clear()
         self.screen.border(0)
-
-        y, x = self.screen.getmaxyx()
-
-        self.screen.addstr(1, (x - len(self.title)) // 2, self.top_text,
-                           curses.A_STANDOUT)
-
-        for i, item in enumerate(self.item_list):
-            x_pos = 10 * (i // 5) + 1
-            y_pos = 2 + (i % 5)
-            style = curses.A_NORMAL
-            if self.cursor_pos == [(i // 5), (i % 5)]:
-                style = curses.A_STANDOUT
-            self.screen.addstr(y_pos, x_pos, item, style)
-
-        self.screen.addstr(
-            y - 1, 0, self.bottom_text + ' ' * (x - 1 - len(self.bottom_text)),
-            curses.A_STANDOUT)
         try:
-            self.screen.addch(y - 1, x - 1, ' ', curses.A_STANDOUT)
+            num_columns = len(self.item_list) // self.max_y
+            if num_columns % self.max_y != 0:
+                num_columns += 1
+            self.screen.addstr(1, 1, self.top_text,
+                               curses.A_STANDOUT)
+
+            for i, item in enumerate(self.item_list):
+                x_pos = 10 * (i // self.max_y) + 1
+                y_pos = (i % (self.max_y)) + 2
+                style = curses.A_NORMAL
+                if self.cursor_pos == [(i // self.max_y), (i % self.max_y)]:
+                    style = curses.A_STANDOUT
+                self.screen.addstr(y_pos, x_pos, item, style)
+
+            self.screen.addstr(
+                self.max_y + 1, 0, self.bottom_text + ' ' *
+                (self.max_x - 1 - len(self.bottom_text)), curses.A_STANDOUT)
+            try:
+                self.screen.addch(self.max_y + 1, self.max_x - 1, ' ',
+                                  curses.A_STANDOUT)
+            except curses.error:
+                pass
         except curses.error:
             pass
 
@@ -131,16 +145,19 @@ class ListView(GenericView):
             self.set_choice()
             self.running = False
 
-        self.set_cursor_max()
+    def set_max_y_x(self):
+        self.max_y, self.max_x = self.screen.getmaxyx()
+        self.max_y -= 2
 
     def set_cursor_max(self):
-        last_column_length = len(self.item_list) % 5
-        self.current_cursor_max_width = len(self.item_list) // 5
+
+        last_column_length = len(self.item_list) % self.max_y
+        self.current_cursor_max_width = len(self.item_list) // self.max_y
         if (last_column_length > self.cursor_pos[1]):
             self.current_cursor_max_width += 1
 
-        self.current_cursor_max_height = 5
-        if self.cursor_pos[0] == (len(self.item_list) // 5):
+        self.current_cursor_max_height = self.max_y - 1
+        if self.cursor_pos[0] == (len(self.item_list) // self.max_y):
             self.current_cursor_max_height = last_column_length
 
     def set_choice(self):
