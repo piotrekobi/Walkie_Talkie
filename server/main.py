@@ -3,24 +3,19 @@ import threading
 import queue
 
 
+
+
+
 class SocketSoundServer:
     def __init__(self, port_in, port_out, address):
         self.connections = dict()
-        self.server = None
-        self.socket_in = None
-        self.socket_out = None
-        self.ip = address
-        self.port_in = port_in
-        self.port_out = port_out
+        self.socket_in = SocketWrapper(port_in, address)
+        self.socket_out = SocketWrapper(port_out, address)
 
     def start(self):
-        self.socket_in = socket.socket()
-        self.socket_in.bind((self.ip, self.port_in))
-        self.socket_in.listen(5)
+        self.socket_in.listen()
 
-        self.socket_out = socket.socket()
-        self.socket_out.bind((self.ip, self.port_out))
-        self.socket_out.listen(5)
+        self.socket_out.listen()
 
         threading.Thread(target=self.run_server_in).start()
         threading.Thread(target=self.run_server_out).start()
@@ -84,6 +79,22 @@ class SocketSoundServer:
             self.init_id(user_id)
 
             self.connections[user_id].c_out = c
+
+
+def user_mic_thread():
+    pass
+
+
+def user_speaker_thread():
+    pass
+
+
+def channel_thread():
+    pass
+
+
+def endpoint_thread():
+    pass
 
 
 if __name__ == "__main__":
