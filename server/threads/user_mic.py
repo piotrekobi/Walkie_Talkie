@@ -19,6 +19,6 @@ class UserMic(Thread):
                 print(self.name, e)
 
     def loop(self):
-        data = self.connection.recv(9000, )
+        data = self.connection.recv(9000)
         parsed = np.frombuffer(data, dtype='float32')
         self.queue.put(parsed)

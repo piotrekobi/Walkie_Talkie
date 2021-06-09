@@ -14,7 +14,6 @@ class SocketWrapper:
             self.soc = socket.socket()
             self.soc.bind((self.address, self.port))
             self.soc.listen(5)
-            self.soc.settimeout(1)
             self.enabled = True
         else:
             raise RuntimeError()

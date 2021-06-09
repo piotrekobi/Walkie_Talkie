@@ -35,7 +35,7 @@ class User:
         self.c_speaker = connection
 
     def is_ready(self):
-        return self.q_mic is not None and self.q_speaker is not None and self.channel is not None
+        return self.q_mic is not None and self.q_speaker is not None
 
 
 class UserController:
@@ -56,7 +56,7 @@ class UserController:
             return self.users[user_id]
 
     def by_channel(self, channel):
-        return [user for user in self.users.values() if user.channel == channel and user.is_ready()]
+        return [user for user in self.users.values() if user.channel == channel]
 
 
 class Server:
@@ -123,6 +123,9 @@ class Server:
         for i, user in enumerate(users):
             input_qs[i] = user.q_mic
             output_qs[i] = user.q_speaker
+
+        if len(input_qs) > 0:
+            print(input_qs)
 
         return input_qs, output_qs
 
