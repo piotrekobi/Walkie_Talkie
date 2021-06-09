@@ -64,15 +64,20 @@ class GenericView:
 
 
 class ListView(GenericView):
-    def __init__(self,
-                 title,
-                 top_text,
-                 item_list,
-                 bottom_text=" Aby cofnąć do poprzedniego ekranu wciśnij 'q'"):
+    def __init__(
+        self,
+        title,
+        top_text,
+        item_list,
+        bottom_text=" Aby wybrać kanał wciśnij ENTER. Aby cofnąć do poprzedniego ekranu wciśnij 'q'"
+    ):
 
         super().__init__(title, bottom_text=bottom_text)
         self.top_text = top_text
         self.item_list = item_list
+        self.cursor_pos = [0, 0]
+        self.choice = None
+        self.set_cursor_max()
 
     def draw(self):
         self.screen.clear()
@@ -86,7 +91,10 @@ class ListView(GenericView):
         for i, item in enumerate(self.item_list):
             x_pos = 10 * (i // 5) + 1
             y_pos = 2 + (i % 5)
-            self.screen.addstr(y_pos, x_pos, item, curses.A_NORMAL)
+            style = curses.A_NORMAL
+            if self.cursor_pos == [(i // 5), (i % 5)]:
+                style = curses.A_STANDOUT
+            self.screen.addstr(y_pos, x_pos, item, style)
 
         self.screen.addstr(
             y - 1, 0, self.bottom_text + ' ' * (x - 1 - len(self.bottom_text)),
@@ -96,16 +104,61 @@ class ListView(GenericView):
         except curses.error:
             pass
 
+    def event_loop(self):
+        char_code = self.screen.getch()
+
+        # char_code == 'q'
+        if char_code == 113:
+            self.running = False
+
+        if char_code == curses.KEY_UP:
+            self.cursor_pos[1] = (self.cursor_pos[1] -
+                                  1) % self.current_cursor_max_height
+
+        if char_code == curses.KEY_DOWN:
+            self.cursor_pos[1] = (self.cursor_pos[1] +
+                                  1) % self.current_cursor_max_height
+
+        if char_code == curses.KEY_LEFT:
+            self.cursor_pos[0] = (self.cursor_pos[0] -
+                                  1) % self.current_cursor_max_width
+
+        if char_code == curses.KEY_RIGHT:
+            self.cursor_pos[0] = (self.cursor_pos[0] +
+                                  1) % self.current_cursor_max_width
+
+        if char_code == 10 or char_code == curses.KEY_ENTER:
+            self.set_choice()
+            self.running = False
+
+        self.set_cursor_max()
+
+    def set_cursor_max(self):
+        last_column_length = len(self.item_list) % 5
+        self.current_cursor_max_width = len(self.item_list) // 5
+        if (last_column_length > self.cursor_pos[1]):
+            self.current_cursor_max_width += 1
+
+        self.current_cursor_max_height = 5
+        if self.cursor_pos[0] == (len(self.item_list) // 5):
+            self.current_cursor_max_height = last_column_length
+
+    def set_choice(self):
+        index = (5 * self.cursor_pos[0] + self.cursor_pos[1])
+        self.choice = self.item_list[index]
+
 
 class SelectView(GenericView):
     def __init__(self,
                  title,
                  options,
+                 top_text,
                  bottom_text="  Aby opuścić aplikację wciśnij 'q'"):
         super().__init__(title, bottom_text)
         self.options = options
-
         self.cursor_pos = 0
+        self.top_text = top_text
+        self.current_channel_id = "Brak"
 
     def draw(self):
         self.screen.clear()
@@ -114,6 +167,11 @@ class SelectView(GenericView):
         y, x = self.screen.getmaxyx()
 
         self.screen.addstr(1, (x - len(self.title)) // 2, self.title,
+                           curses.A_STANDOUT)
+
+        self.screen.addstr(2, 3, self.top_text, curses.A_NORMAL)
+
+        self.screen.addstr(2, 4 + len(self.top_text), self.current_channel_id,
                            curses.A_STANDOUT)
 
         pos = 4
@@ -134,6 +192,10 @@ class SelectView(GenericView):
         except curses.error:
             pass
 
+    def set_current_channel_id(self):
+        if self.options[0].choice is not None:
+            self.current_channel_id = self.options[0].choice
+
     def event_loop(self):
         char_code = self.screen.getch()
 
@@ -149,6 +211,8 @@ class SelectView(GenericView):
 
         if char_code == 10 or char_code == curses.KEY_ENTER:
             self.options[self.cursor_pos].show(self.screen)
+
+        self.set_current_channel_id()
 
 
 class CallView(GenericView):

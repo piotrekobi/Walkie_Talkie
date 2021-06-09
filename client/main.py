@@ -18,12 +18,13 @@ if __name__ == '__main__':
 
     with open("rest_api/channels.json", "r") as f:
         channels = json.load(f)
-        available_channels = 15 * [
+        available_channels = 12 * [
             f"{channel['id']}: {channel['name']}" for channel in channels
         ]
 
     cli_app = CLIApp(
         SelectView(title='Internetowe Walkie-Talkie',
+                   top_text='Wybrany kanał:',
                    options=[
                        ListView(title='Zobacz Dostępne kanały',
                                 top_text="Dostępne kanały:",
