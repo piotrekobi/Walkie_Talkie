@@ -6,10 +6,11 @@ class EndpointSpeaker(EndpointGeneric):
         super().__init__(data, port, ip, 'EndpointSpeaker')
 
     def loop(self):
-        connection = self.socket.accept()
+        connection, address = self.socket.accept()
 
         token = connection.recv(2048)
         channel, user_id = parse_token(token)
 
+        print(self.name, f'connecting speaker from {address} to channel {channel} with ID {user_id}')
         self.data.add_speaker(channel, user_id, connection)
 

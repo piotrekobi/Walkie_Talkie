@@ -14,12 +14,19 @@ class SocketWrapper:
             self.soc = socket.socket()
             self.soc.bind((self.address, self.port))
             self.soc.listen(5)
+            self.soc.settimeout(1)
             self.enabled = True
         else:
             raise RuntimeError()
 
     def accept(self):
         if self.enabled:
-            return self.soc.accept()[0]
+            return self.soc.accept()
+        else:
+            raise RuntimeError()
+
+    def close(self):
+        if self.enabled:
+            return self.soc.close()
         else:
             raise RuntimeError()

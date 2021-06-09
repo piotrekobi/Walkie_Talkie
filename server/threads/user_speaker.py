@@ -10,6 +10,7 @@ class UserSpeaker(Thread):
         self.running = True
 
     def run(self):
+        print(self.name, 'starting...')
         while self.running:
             try:
                 self.loop()

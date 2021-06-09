@@ -25,5 +25,7 @@ class EndpointGeneric(Thread):
             except Exception as e:
                 print(self.name, e)
 
+        self.socket.close()
+
     def loop(self):
         raise NotImplementedError()
