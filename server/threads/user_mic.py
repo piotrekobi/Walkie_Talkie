@@ -15,7 +15,7 @@ class UserMic(Thread):
             try:
                 self.loop()
             except Exception as e:
-                print(e)
+                print(self.name, e)
 
     def loop(self):
         data = self.connection.recv(9000)

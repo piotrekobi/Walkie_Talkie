@@ -1,18 +1,14 @@
 from threading import Thread
 
-from wrappers.socket_wrapper import SocketWrapper
+from threads.wrappers.socket_wrapper import SocketWrapper
 
 
 def parse_token(token):
     text = token.decode('utf-8')
-    return text.split('_')
+    return text.split('-')
 
 
 class EndpointGeneric(Thread):
-    data: any
-    socket: SocketWrapper
-    running: bool
-
     def __init__(self, data, port, ip, name):
         super().__init__(name=name)
         self.data = data
@@ -20,13 +16,14 @@ class EndpointGeneric(Thread):
         self.running = True
 
     def run(self) -> None:
+        print(self.name, 'starting...')
         self.socket.listen()
 
         while self.running:
             try:
                 self.loop()
             except Exception as e:
-                print(e)
+                print(self.name, e)
 
     def loop(self):
         raise NotImplementedError()

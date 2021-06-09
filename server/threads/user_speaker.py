@@ -14,7 +14,7 @@ class UserSpeaker(Thread):
             try:
                 self.loop()
             except Exception as e:
-                print(e)
+                print(self.name, e)
 
     def loop(self):
         parsed = self.queue.get()

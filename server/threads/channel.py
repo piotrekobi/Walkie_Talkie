@@ -3,11 +3,11 @@ from queue import Queue
 import numpy as np
 
 
-class UserMic(Thread):
-    def __init__(self, channel, queues: list[(Queue, Queue)]):
-        super().__init__(name='UserMic')
+class Channel(Thread):
+    def __init__(self, data, channel):
+        super().__init__(name='Channel')
         self.channel = channel
-        self.queues = queues
+        self.data = data
 
     def run(self):
         while self.running:
@@ -17,6 +17,12 @@ class UserMic(Thread):
                 print(e)
 
     def loop(self):
-        data = self.connection.recv(9000)
-        parsed = np.frombuffer(data, dtype='float32')
-        self.queue.put(parsed)
+        input_qs, output_qs = self.data.get_queues(self.channel)
+
+        input_arr = []
+
+        for q in input_qs:
+            input_arr.append(q.get())
+
+        for i, q in enumerate(output_qs):
+            q.put(np.sum(input_arr[:i] + input_arr[i:]))

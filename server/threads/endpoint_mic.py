@@ -1,4 +1,4 @@
-from endpoint_generic import EndpointGeneric, parse_token
+from threads.endpoint_generic import EndpointGeneric, parse_token
 
 
 class EndpointMic(EndpointGeneric):
