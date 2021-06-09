@@ -93,11 +93,7 @@ class ListView(GenericView):
         self.screen.clear()
         self.screen.border(0)
         try:
-            num_columns = len(self.item_list) // self.max_y
-            if num_columns % self.max_y != 0:
-                num_columns += 1
-            self.screen.addstr(1, 1, self.top_text,
-                               curses.A_STANDOUT)
+            self.screen.addstr(1, 1, self.top_text, curses.A_STANDOUT)
 
             for i, item in enumerate(self.item_list):
                 x_pos = 10 * (i // self.max_y) + 1
@@ -121,8 +117,7 @@ class ListView(GenericView):
     def event_loop(self):
         char_code = self.screen.getch()
 
-        # char_code == 'q'
-        if char_code == 113:
+        if char_code == ord('q'):
             self.running = False
 
         if char_code == curses.KEY_UP:
@@ -161,7 +156,7 @@ class ListView(GenericView):
             self.current_cursor_max_height = last_column_length
 
     def set_choice(self):
-        index = (5 * self.cursor_pos[0] + self.cursor_pos[1])
+        index = (self.max_y * self.cursor_pos[0] + self.cursor_pos[1])
         self.choice = self.item_list[index]
 
 
