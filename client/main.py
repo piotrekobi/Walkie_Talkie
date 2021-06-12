@@ -1,9 +1,8 @@
 import time
-
 from call_controler import CallController
 from cli_app import CLIApp, GenericView, SelectView, ListView, CallView
 from config.server import SERVER_URL, MIC_PORT, SPEAKER_PORT, USER_ID
-import json
+import rest_api_func
 
 if __name__ == '__main__':
     # call_controller = CallController(
@@ -18,11 +17,10 @@ if __name__ == '__main__':
     # while True:
     #     pass
 
-    with open("../server/data/channels.json", "r") as f:
-        channels = json.load(f)
-        available_channels = 12 * [
-            f"{channel['id']}: {channel['name']}" for channel in channels
-        ]
+    channels = rest_api_func.get_channels().json()
+    available_channels = [
+        f"{channel['id']}: {channel['name']}" for channel in channels
+    ]
 
     channel_choice_view = ListView(title='Wybierz kanał',
                                    top_text="Dostępne kanały:",

@@ -1,6 +1,6 @@
 import requests
 
-URL = "http://127.0.0.1:5000/channels"
+URL = "http://test-project-domain.com:5000/channels"
 
 
 def get_channels():
