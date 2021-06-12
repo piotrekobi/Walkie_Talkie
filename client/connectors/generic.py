@@ -1,5 +1,5 @@
 from logging import Logger
-from queue import Queue
+from queue import Queue, Empty, Full
 from threading import Thread
 
 
@@ -49,7 +49,10 @@ class OutputConnector(GenericConnector):
         self.setup()
 
         while self.started:
-            self.read_frame(self.queue.get())
+            try:
+                self.read_frame(self.queue.get_nowait())
+            except Empty:
+                pass
 
         self.destroy()
 
@@ -72,7 +75,10 @@ class InputConnector(GenericConnector):
         self.setup()
 
         while self.started:
-            self.queue.put(self.await_frame())
+            try:
+                self.queue.put_nowait(self.await_frame())
+            except Full:
+                pass
 
         self.destroy()
 
