@@ -1,5 +1,6 @@
 .vscode
 .idea
 client/config
+server/config
 test.py
 __pycache__

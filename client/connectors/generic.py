@@ -1,5 +1,5 @@
 from logging import Logger
-from queue import Queue
+from queue import Queue, Empty, Full
 from threading import Thread
 
 
@@ -18,7 +18,8 @@ class GenericConnector:
     name: str
     thread: Thread
 
-    def __init__(self):
+    def __init__(self, name):
+        self.name = name
         self.started = False
 
     def start(self, queue: Queue, logger: Logger):
@@ -35,23 +36,23 @@ class GenericConnector:
         raise NotImplementedError
     
     def close(self):
-        if not self.started:
-            raise ConnectorNotStartedError()
         self.started = False
 
 
 class OutputConnector(GenericConnector):
-    def __init__(self):
-        super().__init__()
-        self.name = "OutputConnector"
+    def __init__(self, name):
+        super().__init__(name)
 
     def __start__(self):
         self.setup()
 
         while self.started:
-            self.read_frame(self.queue.get())
+            try:
+                self.read_frame(self.queue.get_nowait())
+            except Empty:
+                pass
 
-        self.destroy()
+        self.exit()
 
     def setup(self):
         raise NotImplementedError
@@ -59,22 +60,24 @@ class OutputConnector(GenericConnector):
     def read_frame(self, data):
         raise NotImplementedError
 
-    def destroy(self):
+    def exit(self):
         raise NotImplementedError
 
 
 class InputConnector(GenericConnector):
-    def __init__(self):
-        super().__init__()
-        self.name = "InputConnector"
+    def __init__(self, name):
+        super().__init__(name)
 
     def __start__(self):
         self.setup()
 
         while self.started:
-            self.queue.put(self.await_frame())
+            try:
+                self.queue.put_nowait(self.await_frame())
+            except Full:
+                pass
 
-        self.destroy()
+        self.exit()
 
     def setup(self):
         raise NotImplementedError
@@ -82,5 +85,5 @@ class InputConnector(GenericConnector):
     def await_frame(self):
         raise NotImplementedError
 
-    def destroy(self):
+    def exit(self):
         raise NotImplementedError

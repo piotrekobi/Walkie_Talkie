@@ -1,3 +1,5 @@
+import time
+
 from call_controler import CallController
 from cli_app import CLIApp, GenericView, SelectView, ListView, CallView
 from config.server import SERVER_URL, MIC_PORT, SPEAKER_PORT, USER_ID

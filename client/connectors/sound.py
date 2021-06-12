@@ -12,8 +12,7 @@ class DeviceSoundOutputConnector(OutputConnector):
         self.frame_size = frame_size
         self.sample_rate = sample_rate
 
-        super().__init__()
-        self.name = "SoundOutputConnector"
+        super().__init__('DeviceSoundOutputConnector')
 
     def setup(self):
         self.logger.log(1, 'Starting Thread')
@@ -21,7 +20,7 @@ class DeviceSoundOutputConnector(OutputConnector):
             channels=1,
             dtype='float32',
             blocksize=self.frame_size,
-            samplerate=self.sample_rate
+            samplerate=self.sample_rate,
         )
 
         self.stream.start()
@@ -32,7 +31,7 @@ class DeviceSoundOutputConnector(OutputConnector):
         except Exception as e:
             self.logger.error(e)
 
-    def destroy(self):
+    def exit(self):
         self.logger.log(1, 'Stoping Thread')
         self.stream.close()
 
@@ -46,8 +45,7 @@ class DeviceSoundInputConnector(InputConnector):
         self.frame_size = frame_size
         self.sample_rate = sample_rate
 
-        super().__init__()
-        self.name = "SoundInputConnector"
+        super().__init__('DeviceSoundInputConnector')
 
     def setup(self):
         self.stream = sd.InputStream(
@@ -65,6 +63,6 @@ class DeviceSoundInputConnector(InputConnector):
         except Exception as e:
             self.logger.error(e)
 
-    def destroy(self):
+    def exit(self):
         self.logger.log(1, 'Stoping Thread')
         self.stream.close()
