@@ -29,3 +29,7 @@ class EndpointGeneric(Thread):
 
     def loop(self):
         raise NotImplementedError()
+
+    def close(self):
+        self.running = False
+        self.socket.shutdown()

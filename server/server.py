@@ -76,14 +76,14 @@ class Server:
     def stop(self):
         for t in self.threads:
             try:
-                t.running = False
+                t.close()
                 t.join()
             except Exception as e:
                 print(e)
 
         for t in self.channels.values():
             try:
-                t.running = False
+                t.close()
                 t.join()
             except Exception as e:
                 print(e)
@@ -96,7 +96,7 @@ class Server:
         user.set_channel(channel)
         user.set_mic_queue(q, connection)
 
-        thread = UserMic(connection, q)
+        thread = UserMic(connection, q, user)
         thread.start()
 
         self.threads.append(thread)
@@ -109,7 +109,7 @@ class Server:
         user.set_channel(channel)
         user.set_mic_queue(q, connection)
 
-        thread = UserSpeaker(connection, q)
+        thread = UserSpeaker(connection, q, user)
         thread.start()
 
         self.threads.append(thread)

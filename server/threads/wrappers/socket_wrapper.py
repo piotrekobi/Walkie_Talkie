@@ -29,3 +29,6 @@ class SocketWrapper:
             return self.soc.close()
         else:
             raise RuntimeError()
+
+    def shutdown(self):
+        self.soc.shutdown(socket.SHUT_WR)

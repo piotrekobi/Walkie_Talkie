@@ -4,14 +4,16 @@ import numpy as np
 
 
 class UserMic(Thread):
-    def __init__(self, connection, queue: Queue):
+    def __init__(self, connection, queue: Queue, user):
         super().__init__(name='UserMic')
         self.connection = connection
+        self.user = user
         self.queue: Queue = queue
         self.running = True
 
     def run(self):
         print(self.name, 'starting...')
+        print(self.name, id(self.queue), self.user.user_id)
         while self.running:
             try:
                 self.loop()
@@ -22,3 +24,6 @@ class UserMic(Thread):
         data = self.connection.recv(9000)
         parsed = np.frombuffer(data, dtype='float32')
         self.queue.put(parsed)
+
+    def close(self):
+        self.running = False
