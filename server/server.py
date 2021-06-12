@@ -77,14 +77,12 @@ class Server:
         for t in self.threads:
             try:
                 t.close()
-                t.join()
             except Exception as e:
                 print(e)
 
         for t in self.channels.values():
             try:
                 t.close()
-                t.join()
             except Exception as e:
                 print(e)
 
