@@ -28,7 +28,7 @@ class UserMic(Thread):
             parsed = np.frombuffer(data, dtype='float32')
             # zeros = np.zeros(2048)
             # zeros[:parsed.shape[0]] = parsed
-            self.queue.put_nowait((parsed, milliseconds))
+            self.queue.put_nowait([parsed, milliseconds, 0, 0])
         except Full:
             pass
 

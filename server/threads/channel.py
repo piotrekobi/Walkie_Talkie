@@ -1,3 +1,4 @@
+import time
 from queue import Full
 from threading import Thread
 import numpy as np
@@ -23,7 +24,10 @@ class Channel(Thread):
         input_arr = []
 
         for q in input_qs:
-            input_arr.append(q.get())
+            d = q.get()
+
+            d[2] = int(round(time.time() * 1000))
+            input_arr.append(d)
             q.task_done()
 
         # input_arr = np.array(input_arr)
@@ -32,6 +36,7 @@ class Channel(Thread):
             for j in range(len(input_arr)):
                 if i != j:
                     try:
+                        input_arr[j][3] = int(round(time.time() * 1000))
                         q.put_nowait(input_arr[j])
                     except Full:
                         pass

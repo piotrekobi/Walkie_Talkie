@@ -22,12 +22,12 @@ class UserSpeaker(Thread):
 
     def loop(self):
         try:
-            parsed, last_milliseconds = self.queue.get_nowait()
+            parsed, start, channel_start, channel_end = self.queue.get_nowait()
             self.queue.task_done()
             data = parsed.tobytes()
             milliseconds = int(round(time.time() * 1000))
             self.connection.send(data)
-            print('dt:', milliseconds - last_milliseconds)
+            print('dts:', milliseconds - start, milliseconds - channel_start, milliseconds - channel_end)
         except Empty:
             pass
 
