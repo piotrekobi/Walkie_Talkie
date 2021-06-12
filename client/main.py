@@ -18,7 +18,7 @@ if __name__ == '__main__':
     # while True:
     #     pass
 
-    with open("rest_api/channels.json", "r") as f:
+    with open("../server/data/channels.json", "r") as f:
         channels = json.load(f)
         available_channels = 12 * [
             f"{channel['id']}: {channel['name']}" for channel in channels
