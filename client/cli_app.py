@@ -1,6 +1,7 @@
 import curses
 import threading
 import time
+from threading import Thread
 
 
 class EventBus:
@@ -29,6 +30,7 @@ class GenericView:
         self.title = title
         self.bottom_text = bottom_text
         self.running = False
+        self.start_time = time.time()
 
     def show(self, screen, event_bus=None):
         self.running = True
@@ -167,11 +169,21 @@ class CallView(GenericView):
                  bottom_text=' Aby rozłączyć się, wciśnij "q"'):
         super().__init__(title, bottom_text=bottom_text)
         self.__choice_view = choice_view
-        self.start_time = time.time()
+
+    def show(self, screen, event_bus=None):
+        self.running = True
+        self.screen = screen
+        self.event_bus = event_bus
+        curses.halfdelay(10)
+
+        while self.running:
+            self.draw()
+            self.event_loop()
 
     def draw(self):
         self.screen.clear()
         self.screen.border(0)
+
         y, x = self.screen.getmaxyx()
         channel_info = self.__choice_view.choice
 
@@ -185,7 +197,8 @@ class CallView(GenericView):
                                curses.A_STANDOUT)
 
             call_time = round(time.time() - self.start_time)
-            time_text = f"Czas rozmowy: {call_time}"
+            minutes, seconds = divmod(call_time, 60)
+            time_text = f"Czas rozmowy: {minutes:02d}:{seconds:02d}"
             self.screen.addstr(3, (x - len(time_text)) // 2, time_text,
                                curses.A_NORMAL)
 
@@ -199,7 +212,6 @@ class CallView(GenericView):
 
     def event_loop(self):
         char_code = self.screen.getch()
-
         if char_code == ord('q'):
             self.running = False
 
@@ -266,6 +278,7 @@ class SelectView(GenericView):
             self.cursor_pos = (self.cursor_pos + 1) % len(self.options)
 
         if char_code == 10 or char_code == curses.KEY_ENTER:
+            self.options[self.cursor_pos].start_time = time.time()
             self.options[self.cursor_pos].show(self.screen)
 
         self.set_current_channel_id()
