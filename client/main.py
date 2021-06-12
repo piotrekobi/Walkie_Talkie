@@ -1,16 +1,10 @@
 import time
 from call_controler import CallController
 from cli_app import CLIApp, GenericView, SelectView, ListView, CallView
-from config.server import SERVER_URL, MIC_PORT, SPEAKER_PORT, USER_ID
 import rest_api_func
 
 if __name__ == '__main__':
-    # call_controller = CallController(
-    #     url=SERVER_URL,
-    #     mic_port=MIC_PORT,
-    #     speaker_port=SPEAKER_PORT,
-    #     user_id=USER_ID
-    # )
+
 
     # call_controller.connect(10)
 

@@ -3,6 +3,9 @@ import threading
 import time
 from threading import Thread
 
+from call_controler import CallController
+from config.server import SERVER_URL, MIC_PORT, SPEAKER_PORT, USER_ID
+
 
 class EventBus:
     def emit(self, event):
@@ -170,15 +173,26 @@ class CallView(GenericView):
         super().__init__(title, bottom_text=bottom_text)
         self.__choice_view = choice_view
 
+        self.call_controller = CallController(
+            url=SERVER_URL,
+            mic_port=MIC_PORT,
+            speaker_port=SPEAKER_PORT,
+            user_id=USER_ID
+        )
+
     def show(self, screen, event_bus=None):
         self.running = True
         self.screen = screen
         self.event_bus = event_bus
         curses.halfdelay(10)
 
+        self.call_controller.connect(int(self.__choice_view.choice.split(':')[0]))
+
         while self.running:
             self.draw()
             self.event_loop()
+
+        self.call_controller.disconnect()
 
     def draw(self):
         self.screen.clear()

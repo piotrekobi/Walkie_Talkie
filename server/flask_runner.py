@@ -34,7 +34,7 @@ class ChannelIdPass(Resource):
 
 class FlaskRunner:
     def __init__(self):
-        self.name='FlaskRunner'
+        self.name = 'FlaskRunner'
 
         self.app = Flask(__name__)
         self.api = Api(self.app)
@@ -45,4 +45,4 @@ class FlaskRunner:
 
     def run(self):
         print(self.name, 'starting...')
-        self.app.run(debug=True)
+        self.app.run(host='0.0.0.0', )
