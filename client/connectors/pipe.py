@@ -10,8 +10,13 @@ class ConnectorPipe:
 
         self.queues = []
 
-        self.logger = logging.Logger(name='logger')
-        self.logger.addHandler(logging.StreamHandler())
+        logging.basicConfig(level=logging.DEBUG,
+                            format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+                            datefmt='%m-%d %H:%M',
+                            filename='client.log',
+                            filemode='w')
+
+        self.logger = logging.getLogger(name='logger')
 
         self.start_connector = args[0]
         self.middle_connectors = args[1:-1]
