@@ -18,7 +18,8 @@ class GenericConnector:
     name: str
     thread: Thread
 
-    def __init__(self):
+    def __init__(self, name):
+        self.name = name
         self.started = False
 
     def start(self, queue: Queue, logger: Logger):
@@ -35,15 +36,12 @@ class GenericConnector:
         raise NotImplementedError
     
     def close(self):
-        if not self.started:
-            raise ConnectorNotStartedError()
         self.started = False
 
 
 class OutputConnector(GenericConnector):
-    def __init__(self):
-        super().__init__()
-        self.name = "OutputConnector"
+    def __init__(self, name):
+        super().__init__(name)
 
     def __start__(self):
         self.setup()
@@ -54,7 +52,7 @@ class OutputConnector(GenericConnector):
             except Empty:
                 pass
 
-        self.destroy()
+        self.exit()
 
     def setup(self):
         raise NotImplementedError
@@ -62,14 +60,13 @@ class OutputConnector(GenericConnector):
     def read_frame(self, data):
         raise NotImplementedError
 
-    def destroy(self):
+    def exit(self):
         raise NotImplementedError
 
 
 class InputConnector(GenericConnector):
-    def __init__(self):
-        super().__init__()
-        self.name = "InputConnector"
+    def __init__(self, name):
+        super().__init__(name)
 
     def __start__(self):
         self.setup()
@@ -80,7 +77,7 @@ class InputConnector(GenericConnector):
             except Full:
                 pass
 
-        self.destroy()
+        self.exit()
 
     def setup(self):
         raise NotImplementedError
@@ -88,5 +85,5 @@ class InputConnector(GenericConnector):
     def await_frame(self):
         raise NotImplementedError
 
-    def destroy(self):
+    def exit(self):
         raise NotImplementedError

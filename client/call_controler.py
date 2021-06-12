@@ -58,6 +58,8 @@ class CallController:
             )
         )
 
+        self.connected = True
+
     def disconnect(self):
         if not self.connected:
             raise ConnectionNotStartedError()

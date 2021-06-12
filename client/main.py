@@ -1,3 +1,5 @@
+import time
+
 from call_controler import CallController
 from cli_app import CLIApp, GenericView, SelectView
 from config.server import SERVER_URL, MIC_PORT, SPEAKER_PORT, USER_ID
@@ -12,18 +14,27 @@ if __name__ == '__main__':
 
     call_controller.connect(10)
 
-    while True:
-        pass
+    try:
+        while True:
+            pass
+    except KeyboardInterrupt:
+        call_controller.disconnect()
 
-    cli_app = CLIApp(
-        SelectView(
-            title='Internetowe Walke-Talke',
-            options=[
-                GenericView(title='Zobacz Dostępne kanały'),
-                GenericView(title='Rozpocznij połączenie'),
-            ]
-        )
-    )
+    print('Zamykam')
 
-    cli_app.run()
+    time.sleep(10)
+
+    print('Zamykam2')
+
+    # cli_app = CLIApp(
+    #     SelectView(
+    #         title='Internetowe Walke-Talke',
+    #         options=[
+    #             GenericView(title='Zobacz Dostępne kanały'),
+    #             GenericView(title='Rozpocznij połączenie'),
+    #         ]
+    #     )
+    # )
+    #
+    # cli_app.run()
 

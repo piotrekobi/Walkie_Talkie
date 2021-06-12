@@ -1,3 +1,5 @@
+import errno
+
 from connectors.generic import OutputConnector, InputConnector
 
 import socket
@@ -36,7 +38,7 @@ class ServerSoundOutputConnector(OutputConnector, ServerConnector):
         self.port = port
         self.connection_id = connection_id
 
-        super().__init__()
+        super().__init__('ServerSoundOutputConnector')
 
     def setup(self):
         self.setup_server()
@@ -45,10 +47,17 @@ class ServerSoundOutputConnector(OutputConnector, ServerConnector):
         try:
             self.soc.send(data.tobytes())
         except Exception as e:
+            if e.errno == errno.EPIPE:
+                self.started = False
+
             self.logger.error(e)
 
-    def destroy(self):
+    def exit(self):
         self.destroy_server()
+
+    def close(self):
+        self.started = False
+        self.soc.shutdown(socket.SHUT_WR)
 
 
 class ServerSoundInputConnector(InputConnector, ServerConnector):
@@ -57,7 +66,7 @@ class ServerSoundInputConnector(InputConnector, ServerConnector):
         self.port = port
         self.connection_id = connection_id
 
-        super().__init__()
+        super().__init__('ServerSoundInputConnector')
 
     def setup(self):
         self.setup_server()
@@ -67,7 +76,14 @@ class ServerSoundInputConnector(InputConnector, ServerConnector):
             recording = np.frombuffer(self.soc.recv(8192), dtype='float32')
             return recording
         except Exception as e:
+            if e.errno == errno.EPIPE:
+                self.started = False
+
             self.logger.error(e)
 
-    def destroy(self):
+    def exit(self):
         self.destroy_server()
+
+    def close(self):
+        self.started = False
+        self.soc.shutdown(socket.SHUT_WR)

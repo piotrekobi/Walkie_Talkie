@@ -1,5 +1,5 @@
 import time
-from queue import Full
+from queue import Full, Empty
 from threading import Thread
 import numpy as np
 
@@ -24,17 +24,21 @@ class Channel(Thread):
         input_arr = []
 
         for q in input_qs:
-            d = q.get()
+            try:
+                d = q.get_nowait()
+                q.task_done()
 
-            d[2] = int(round(time.time() * 1000))
-            input_arr.append(d)
-            q.task_done()
+                d[2] = int(round(time.time() * 1000))
+                input_arr.append(d)
+            except Empty:
+                input_arr.append(None)
+
 
         # input_arr = np.array(input_arr)
 
         for i, q in enumerate(output_qs):
             for j in range(len(input_arr)):
-                if i != j:
+                if i != j and input_arr[j] is not None:
                     try:
                         input_arr[j][3] = int(round(time.time() * 1000))
                         q.put_nowait(input_arr[j])
