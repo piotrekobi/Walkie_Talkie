@@ -1,13 +1,13 @@
 from server import Server
-
+from flask_runner import FlaskRunner
 
 if __name__ == "__main__":
-    server = Server()
-    server.run()
-
     try:
-        while True:
-            pass
+        server = Server()
+        server.run()
+
+        flask = FlaskRunner()
+        flask.run()
     except KeyboardInterrupt:
         print('Stopping...')
         server.stop()

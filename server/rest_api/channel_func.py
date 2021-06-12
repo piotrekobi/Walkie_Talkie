@@ -22,7 +22,7 @@ def delete_channel(channel_id, channels, password=None):
     index, channel = find_channel(channel_id, channels)
     if channel and channel["password"] == password:
         channels.pop(index)
-        save_channels("channels.json", channels)
+        save_channels("../data/channels.json", channels)
         return "Channel deleted"
     return "Invalid channel ID or password"
 
@@ -34,7 +34,7 @@ def create_channel(info, channels):
             "name": info["name"],
             "password": info["password"]
         })
-        save_channels("channels.json", channels)
+        save_channels("../data/channels.json", channels)
         return "Channel created"
     except KeyError:
         return "Invalid channel info"
