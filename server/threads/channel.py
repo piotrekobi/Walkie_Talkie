@@ -24,11 +24,12 @@ class Channel(Thread):
         for q in input_qs:
             input_arr.append(q.get())
 
-        input_arr = np.array(input_arr)
+        # input_arr = np.array(input_arr)
 
         for i, q in enumerate(output_qs):
-            # sumed = input_arr.sum(axis=1)
-            q.put(input_arr[0])
+            for j in range(len(input_arr)):
+                if i != j:
+                    q.put(input_arr[j])
 
     def close(self):
         self.running = False

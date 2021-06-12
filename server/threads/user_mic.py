@@ -21,11 +21,13 @@ class UserMic(Thread):
                 print(self.name, e)
 
     def loop(self):
-        data = self.connection.recv(9000)
+        data = self.connection.recv(8192)
         parsed = np.frombuffer(data, dtype='float32')
-        zeros = np.zeros(2048)
-        zeros[:2048] = parsed
-        self.queue.put(zeros)
+        # zeros = np.zeros(2048)
+        # zeros[:parsed.shape[0]] = parsed
+        self.queue.put(parsed)
+
+        # self.queue.put(data)
 
     def close(self):
         self.running = False

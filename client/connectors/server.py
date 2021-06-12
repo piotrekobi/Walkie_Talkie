@@ -64,7 +64,7 @@ class ServerSoundInputConnector(InputConnector, ServerConnector):
 
     def await_frame(self):
         try:
-            recording = np.frombuffer(self.soc.recv(100000), dtype='float32')
+            recording = np.frombuffer(self.soc.recv(8192), dtype='float32')
             return recording
         except Exception as e:
             self.logger.error(e)
