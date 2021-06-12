@@ -11,7 +11,6 @@ class Channel(Thread):
 
     def run(self):
         print(self.name, 'starting...')
-        self.id(self.queue)
         while self.running:
             try:
                 self.loop()
@@ -23,12 +22,13 @@ class Channel(Thread):
         input_arr = []
 
         for q in input_qs:
-            print(self.name, id(q), 'kolejka wejsciowa')
+            print(self.name, type(q), id(q), 'kolejka wejsciowa')
             input_arr.append(q.get())
 
         input_arr = np.array(input_arr)
 
         for i, q in enumerate(output_qs):
+            print(self.name, type(q), id(q), 'kolejka wyjsowa')
             sumed = input_arr.sum(axis=0)
             print(self.name, i, len(sumed))
             q.put(sumed)

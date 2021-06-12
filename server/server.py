@@ -122,9 +122,6 @@ class Server:
             input_qs[i] = user.q_mic
             output_qs[i] = user.q_speaker
 
-        if len(input_qs) > 0:
-            print(input_qs)
-
         return input_qs, output_qs
 
     def start_channel(self, channel):
