@@ -56,7 +56,7 @@ class UserController:
             return self.users[user_id]
 
     def by_channel(self, channel):
-        return [user for user in self.users.values() if user.channel == channel]
+        return [user for user in self.users.values() if user.channel == channel and user.is_ready()]
 
 
 class Server:
@@ -105,7 +105,7 @@ class Server:
         user = self.get_user(user_id)
         self.start_channel(channel)
         user.set_channel(channel)
-        user.set_mic_queue(q, connection)
+        user.set_speaker_queue(q, connection)
 
         thread = UserSpeaker(connection, q, user)
         thread.start()
