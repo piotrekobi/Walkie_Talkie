@@ -1,3 +1,4 @@
+import time
 from threading import Thread
 from queue import Queue, Empty
 
@@ -21,10 +22,12 @@ class UserSpeaker(Thread):
 
     def loop(self):
         try:
-            parsed = self.queue.get_nowait()
+            parsed, last_milliseconds = self.queue.get_nowait()
             self.queue.task_done()
             data = parsed.tobytes()
+            milliseconds = int(round(time.time() * 1000))
             self.connection.send(data)
+            print('dt:', milliseconds - last_milliseconds)
         except Empty:
             pass
 

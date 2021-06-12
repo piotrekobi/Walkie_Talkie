@@ -1,6 +1,7 @@
 from threading import Thread
 from queue import Queue, Full
 import numpy as np
+import time
 
 
 class UserMic(Thread):
@@ -23,10 +24,11 @@ class UserMic(Thread):
     def loop(self):
         try:
             data = self.connection.recv(8192)
+            milliseconds = int(round(time.time() * 1000))
             parsed = np.frombuffer(data, dtype='float32')
             # zeros = np.zeros(2048)
             # zeros[:parsed.shape[0]] = parsed
-            self.queue.put_nowait(parsed)
+            self.queue.put_nowait((parsed, milliseconds))
         except Full:
             pass
 
