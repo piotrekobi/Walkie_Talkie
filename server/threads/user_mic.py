@@ -1,5 +1,5 @@
 from threading import Thread
-from queue import Queue
+from queue import Queue, Full
 import numpy as np
 
 
@@ -21,13 +21,14 @@ class UserMic(Thread):
                 print(self.name, e)
 
     def loop(self):
-        data = self.connection.recv(8192)
-        parsed = np.frombuffer(data, dtype='float32')
-        # zeros = np.zeros(2048)
-        # zeros[:parsed.shape[0]] = parsed
-        self.queue.put(parsed)
-
-        # self.queue.put(data)
+        try:
+            data = self.connection.recv(8192)
+            parsed = np.frombuffer(data, dtype='float32')
+            # zeros = np.zeros(2048)
+            # zeros[:parsed.shape[0]] = parsed
+            self.queue.put_nowait(parsed)
+        except Full:
+            pass
 
     def close(self):
         self.running = False

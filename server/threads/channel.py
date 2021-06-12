@@ -1,3 +1,4 @@
+from queue import Full
 from threading import Thread
 import numpy as np
 
@@ -23,13 +24,17 @@ class Channel(Thread):
 
         for q in input_qs:
             input_arr.append(q.get())
+            q.task_done()
 
         # input_arr = np.array(input_arr)
 
         for i, q in enumerate(output_qs):
             for j in range(len(input_arr)):
                 if i != j:
-                    q.put(input_arr[j])
+                    try:
+                        q.put_nowait(input_arr[j])
+                    except Full:
+                        pass
 
     def close(self):
         self.running = False

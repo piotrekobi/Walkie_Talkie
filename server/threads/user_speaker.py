@@ -1,5 +1,5 @@
 from threading import Thread
-from queue import Queue
+from queue import Queue, Empty
 
 
 class UserSpeaker(Thread):
@@ -20,9 +20,13 @@ class UserSpeaker(Thread):
                 print(self.name, e)
 
     def loop(self):
-        parsed = self.queue.get()
-        data = parsed.tobytes()
-        self.connection.send(data)
+        try:
+            parsed = self.queue.get_nowait()
+            self.queue.task_done()
+            data = parsed.tobytes()
+            self.connection.send(data)
+        except Empty:
+            pass
 
     def close(self):
         self.running = False
