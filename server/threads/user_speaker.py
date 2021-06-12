@@ -21,7 +21,6 @@ class UserSpeaker(Thread):
 
     def loop(self):
         parsed = self.queue.get()
-        print(self.name, len(parsed))
         data = parsed.tobytes()
         self.connection.send(data)
 

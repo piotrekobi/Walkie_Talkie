@@ -23,9 +23,8 @@ class UserMic(Thread):
     def loop(self):
         data = self.connection.recv(9000)
         parsed = np.frombuffer(data, dtype='float32')
-        zeros = np.zeros((2048,))
-        zeros[:parsed.shape[0]] = parsed
-
+        zeros = np.zeros(2048)
+        zeros[:2048] = parsed
         self.queue.put(zeros)
 
     def close(self):

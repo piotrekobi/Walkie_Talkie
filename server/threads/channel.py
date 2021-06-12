@@ -27,8 +27,8 @@ class Channel(Thread):
         input_arr = np.array(input_arr)
 
         for i, q in enumerate(output_qs):
-            sumed = input_arr.sum(axis=0)
-            q.put(sumed)
+            # sumed = input_arr.sum(axis=1)
+            q.put(input_arr[0])
 
     def close(self):
         self.running = False
