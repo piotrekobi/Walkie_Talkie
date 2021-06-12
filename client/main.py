@@ -1,5 +1,5 @@
 from call_controler import CallController
-from cli_app import CLIApp, GenericView, SelectView, ListView
+from cli_app import CLIApp, GenericView, SelectView, ListView, CallView
 from config.server import SERVER_URL, MIC_PORT, SPEAKER_PORT, USER_ID
 import json
 
@@ -22,14 +22,16 @@ if __name__ == '__main__':
             f"{channel['id']}: {channel['name']}" for channel in channels
         ]
 
+    channel_choice_view = ListView(title='Wybierz kanał',
+                                   top_text="Dostępne kanały:",
+                                   item_list=available_channels)
     cli_app = CLIApp(
         SelectView(title='Internetowe Walkie-Talkie',
                    top_text='Wybrany kanał:',
                    options=[
-                       ListView(title='Wybierz kanał',
-                                top_text="Dostępne kanały:",
-                                item_list=available_channels),
-                       GenericView(title='Rozpocznij połączenie'),
+                       channel_choice_view,
+                       CallView(title='Rozpocznij połączenie',
+                                choice_view=channel_choice_view),
                    ]))
 
     cli_app.run()

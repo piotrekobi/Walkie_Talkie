@@ -160,6 +160,50 @@ class ListView(GenericView):
         self.choice = self.item_list[index]
 
 
+class CallView(GenericView):
+    def __init__(self,
+                 title,
+                 choice_view,
+                 bottom_text=' Aby rozłączyć się, wciśnij "q"'):
+        super().__init__(title, bottom_text=bottom_text)
+        self.__choice_view = choice_view
+        self.start_time = time.time()
+
+    def draw(self):
+        self.screen.clear()
+        self.screen.border(0)
+        y, x = self.screen.getmaxyx()
+        channel_info = self.__choice_view.choice
+
+        if channel_info is None:
+            no_channel_chosen_text = "Brak wybranego kanału"
+            self.screen.addstr(1, (x - len(no_channel_chosen_text)) // 2,
+                               no_channel_chosen_text, curses.A_STANDOUT)
+        else:
+            self.top_text = f"Rozmowa na kanale {channel_info}"
+            self.screen.addstr(1, (x - len(self.top_text)) // 2, self.top_text,
+                               curses.A_STANDOUT)
+
+            call_time = round(time.time() - self.start_time)
+            time_text = f"Czas rozmowy: {call_time}"
+            self.screen.addstr(3, (x - len(time_text)) // 2, time_text,
+                               curses.A_NORMAL)
+
+        self.screen.addstr(
+            y - 1, 0, self.bottom_text + ' ' * (x - 1 - len(self.bottom_text)),
+            curses.A_STANDOUT)
+        try:
+            self.screen.addch(y - 1, x - 1, ' ', curses.A_STANDOUT)
+        except curses.error:
+            pass
+
+    def event_loop(self):
+        char_code = self.screen.getch()
+
+        if char_code == ord('q'):
+            self.running = False
+
+
 class SelectView(GenericView):
     def __init__(self,
                  title,
@@ -225,10 +269,6 @@ class SelectView(GenericView):
             self.options[self.cursor_pos].show(self.screen)
 
         self.set_current_channel_id()
-
-
-class CallView(GenericView):
-    pass
 
 
 class CLIApp:
