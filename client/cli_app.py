@@ -1,6 +1,7 @@
 import curses
 import threading
 import time
+import rest_api_func
 from cli_views import GenericView
 
 
@@ -26,3 +27,7 @@ class CLIApp:
 class GlobalState:
     def __init__(self):
         self.current_channel = None
+        self.channels = None
+
+    def download_channels(self):
+        self.channels = rest_api_func.get_channels().json()
