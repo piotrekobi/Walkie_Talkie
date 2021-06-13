@@ -5,12 +5,6 @@ from cli_views import GenericView, SelectView, ListView, CallView
 import rest_api_func
 
 if __name__ == '__main__':
-
-    # call_controller.connect(10)
-
-    # while True:
-    #     pass
-
     global_state = GlobalState()
     channels = rest_api_func.get_channels().json()
     available_channels = [
