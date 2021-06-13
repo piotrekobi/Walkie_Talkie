@@ -66,3 +66,5 @@ class CallController:
 
         self.mic_pipe.close()
         self.speaker_pipe.close()
+
+        self.connected = False
