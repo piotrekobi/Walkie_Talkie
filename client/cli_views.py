@@ -144,7 +144,7 @@ class ListView(GenericView):
 
     def set_choice(self):
         index = (self.max_y * self.cursor_pos[0] + self.cursor_pos[1])
-        self.global_state.current_channel_id = self.item_list[index]
+        self.global_state.current_channel = self.item_list[index]
 
 
 class CallView(GenericView):
@@ -178,7 +178,7 @@ class CallView(GenericView):
         self.screen.border(0)
 
         y, x = self.screen.getmaxyx()
-        channel_info = self.global_state_current_channel
+        channel_info = self.global_state.current_channel
 
         if channel_info is None:
             no_channel_chosen_text = "Brak wybranego kanału"
