@@ -53,11 +53,14 @@ class ServerSoundOutputConnector(OutputConnector, ServerConnector):
             self.logger.error(e)
 
     def exit(self):
-        self.destroy_server()
+        try:
+            self.soc.send(b'$close$')
+            self.destroy_server()
+        except BrokenPipeError as e:
+            self.logger.error(e)
 
     def close(self):
         self.started = False
-        self.soc.shutdown(socket.SHUT_WR)
 
 
 class ServerSoundInputConnector(InputConnector, ServerConnector):
@@ -86,4 +89,3 @@ class ServerSoundInputConnector(InputConnector, ServerConnector):
 
     def close(self):
         self.started = False
-        self.soc.shutdown(socket.SHUT_WR)

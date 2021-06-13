@@ -6,6 +6,7 @@ from threads.channel import Channel
 
 from queue import Queue
 from socket import socket
+from threading import Lock
 
 
 class User:
@@ -23,16 +24,33 @@ class User:
         self.q_speaker = None
         self.channel = None
 
+        self.channel_lock = Lock()
+        self.mic_lock = Lock()
+        self.speaker_lock = Lock()
+
     def set_channel(self, channel):
-        self.channel = channel
+        with self.channel_lock:
+            self.channel = channel
 
     def set_mic_queue(self, queue, connection):
-        self.q_mic = queue
-        self.c_mic = connection
+        with self.mic_lock:
+            self.q_mic = queue
+            self.c_mic = connection
+
+    def remove_mic_queue(self):
+        with self.mic_lock:
+            self.c_mic = None
+            self.q_mic = None
 
     def set_speaker_queue(self, queue, connection):
-        self.q_speaker = queue
-        self.c_speaker = connection
+        with self.speaker_lock:
+            self.q_speaker = queue
+            self.c_speaker = connection
+
+    def remove_speaker_queue(self):
+        with self.speaker_lock:
+            self.c_speaker = None
+            self.q_speaker = None
 
     def is_ready(self):
         return self.q_mic is not None and self.q_speaker is not None
@@ -41,6 +59,7 @@ class User:
 class UserController:
     def __init__(self):
         self.users = dict()
+        self.user_lock = Lock()
 
     def __call__(self, *args, **kwargs) -> User:
         if len(args) > 0:
@@ -49,14 +68,16 @@ class UserController:
             raise KeyError()
 
     def get_instance(self, user_id: int):
-        try:
-            return self.users[user_id]
-        except KeyError:
-            self.users[user_id] = User(user_id)
-            return self.users[user_id]
+        with self.user_lock:
+            try:
+                return self.users[user_id]
+            except KeyError:
+                self.users[user_id] = User(user_id)
+                return self.users[user_id]
 
     def by_channel(self, channel):
-        return [user for user in self.users.values() if user.channel == channel and user.is_ready()]
+        with self.user_lock:
+            return [user for user in self.users.values() if user.channel == channel and user.is_ready()]
 
 
 class Server:
@@ -65,6 +86,8 @@ class Server:
         self.get_user = UserController()
 
         self.channels = dict()
+
+        self.channel_lock = Lock()
 
     def run(self):
         self.threads.append(EndpointMic(self, 10000, ''))
@@ -90,11 +113,13 @@ class Server:
         q = Queue()
 
         user = self.get_user(user_id)
-        self.start_channel(channel)
         user.set_channel(channel)
         user.set_mic_queue(q, connection)
 
-        thread = UserMic(connection, q, user)
+        if user.is_ready():
+            self.start_channel(channel)
+
+        thread = UserMic(self, connection, q, user)
         thread.start()
 
         self.threads.append(thread)
@@ -103,11 +128,13 @@ class Server:
         q = Queue()
 
         user = self.get_user(user_id)
-        self.start_channel(channel)
         user.set_channel(channel)
         user.set_speaker_queue(q, connection)
 
-        thread = UserSpeaker(connection, q, user)
+        if user.is_ready():
+            self.start_channel(channel)
+
+        thread = UserSpeaker(self, connection, q, user)
         thread.start()
 
         self.threads.append(thread)
@@ -125,8 +152,9 @@ class Server:
         return input_qs, output_qs
 
     def start_channel(self, channel):
-        try:
-            self.channels[channel]
-        except KeyError:
-            self.channels[channel] = Channel(self, channel)
-            self.channels[channel].start()
+        with self.channel_lock:
+            try:
+                self.channels[channel]
+            except KeyError:
+                self.channels[channel] = Channel(self, channel)
+                self.channels[channel].start()

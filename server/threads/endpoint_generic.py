@@ -9,9 +9,9 @@ def parse_token(token):
 
 
 class EndpointGeneric(Thread):
-    def __init__(self, data, port, ip, name):
+    def __init__(self, server, port, ip, name):
         super().__init__(name=name)
-        self.data = data
+        self.server = server
         self.socket = SocketWrapper(port, ip)
         self.running = True
 
@@ -26,6 +26,7 @@ class EndpointGeneric(Thread):
                 print(self.name, e)
 
         self.socket.close()
+        print(self.name, 'stopping...')
 
     def loop(self):
         raise NotImplementedError()
