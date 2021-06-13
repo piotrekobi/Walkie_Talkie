@@ -167,8 +167,10 @@ class CallView(GenericView):
         self.screen = screen
         curses.halfdelay(10)
 
-        self.call_controller.connect(
-            int(self.global_state.current_channel.split(':')[0]))
+        self.channel_info = channel_info = self.global_state.current_channel
+        if self.channel_info is not None:
+            self.call_controller.connect(
+                int(self.global_state.current_channel.split(':')[0]))
 
         while self.running:
             self.draw()
@@ -181,14 +183,13 @@ class CallView(GenericView):
         self.screen.border(0)
 
         y, x = self.screen.getmaxyx()
-        channel_info = self.global_state.current_channel
 
-        if channel_info is None:
+        if self.channel_info is None:
             no_channel_chosen_text = "Brak wybranego kanału"
             self.screen.addstr(1, (x - len(no_channel_chosen_text)) // 2,
                                no_channel_chosen_text, curses.A_STANDOUT)
         else:
-            self.top_text = f"Rozmowa na kanale {channel_info}"
+            self.top_text = f"Rozmowa na kanale {self.channel_info}"
             self.screen.addstr(1, (x - len(self.top_text)) // 2, self.top_text,
                                curses.A_STANDOUT)
 
@@ -372,7 +373,7 @@ class PasswordView(GenericView):
         if char_code == 10 or char_code == curses.KEY_ENTER:
             self.set_password_num()
 
-        # char_code = "delete"
+        # char_code =
         if char_code == 127 or char_code == curses.KEY_BACKSPACE:
             self.delete_password_num()
 
@@ -381,18 +382,16 @@ class PasswordView(GenericView):
         self.max_y -= 2
 
     def set_password_num(self):
-        if self.current_index < 4:
-            if self.cursor_pos == [1, 3]:
-                number = "0"
-            else:
-                number = self.keyboard_buttons[self.cursor_pos[0] +
-                                               self.cursor_pos[1] * 3]
+        if self.cursor_pos == [1, 3]:
+            number = "0"
+        else:
+            number = self.keyboard_buttons[self.cursor_pos[0] +
+                                           self.cursor_pos[1] * 3]
 
-            self.password[self.current_index] = number
-            self.current_index = min(4, self.current_index + 1)
+        self.password[self.current_index] = number
+        self.current_index = min(3, self.current_index + 1)
 
     def delete_password_num(self):
-
         self.current_index = max(0, self.current_index - 1)
         self.password[self.current_index] = None
 
