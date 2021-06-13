@@ -1,4 +1,5 @@
 import os
+import time
 
 from server import Server
 from flask_runner import FlaskRunner
@@ -15,7 +16,7 @@ def parent():
 
     try:
         while True:
-            pass
+            time.sleep(1)
     except KeyboardInterrupt:
         print('Stopping...')
         server.stop()

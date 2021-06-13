@@ -31,9 +31,9 @@ class Channel(Thread):
     def loop(self):
         input_qs, output_qs = self.server.get_queues(self.channel)
 
-        if len(input_qs) == 0:
-            self.running = False
-            return
+        # if len(input_qs) == 0:
+        #     self.running = False
+        #     return
 
         input_arr = []
 

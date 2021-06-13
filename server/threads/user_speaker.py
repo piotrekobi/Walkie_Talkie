@@ -53,6 +53,8 @@ class UserSpeaker(Thread):
                 self.connection.send(numpy.array([1.0e-6, 1.0e-6, 1.0e-6, 1.0e-6], dtype='float32').tobytes())
             except IOError:
                 self.running = False
+        except IOError:
+            self.running = False
 
     def close(self):
         self.running = False
