@@ -29,8 +29,13 @@ class CallController:
         self.speaker_port = speaker_port
         self.connected = False
 
-    def connect(self, channel_id: int):
-        print(channel_id)
+    def connect(self, channel_id: int, password=None):
+
+        connection_id = f'{channel_id}-{self.user_id}'
+
+        if password is not None:
+            connection_id = f'{channel_id}-{self.user_id}-{password}'
+
         if self.connected:
             raise ConnectionStartedError()
 
@@ -38,7 +43,7 @@ class CallController:
             ServerSoundInputConnector(
                 url=self.url,
                 port=self.speaker_port,
-                connection_id=f'{channel_id}-{self.user_id}'
+                connection_id=connection_id
             ),
             DeviceSoundOutputConnector(
                 frame_size=FRAME_SIZE,
@@ -54,7 +59,7 @@ class CallController:
             ServerSoundOutputConnector(
                 url=self.url,
                 port=self.mic_port,
-                connection_id=f'{channel_id}-{self.user_id}'
+                connection_id=connection_id
             )
         )
 

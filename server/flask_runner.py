@@ -13,7 +13,7 @@ class Channels(Resource):
         return [{
             "id": c["id"],
             "name": c["name"],
-            "has_password": c["password"] is None
+            "has_password": c["password"] is not None
         } for c in channels]
 
     def post(self):

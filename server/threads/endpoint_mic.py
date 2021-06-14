@@ -9,10 +9,14 @@ class EndpointMic(EndpointGeneric):
         connection, address = self.socket.accept()
 
         token = connection.recv(2048)
-        channel, user_id = parse_token(token)
 
-        print(self.name, f'connecting mic from {address} to channel {channel} with ID {user_id}')
-        self.server.add_mic(channel, user_id, connection)
+        try:
+            channel, user_id = parse_token(token)
+
+            print(self.name, f'connecting mic from {address} to channel {channel} with ID {user_id}')
+            self.server.add_mic(channel, user_id, connection)
+        except Exception:
+            connection.close()
 
 
 
