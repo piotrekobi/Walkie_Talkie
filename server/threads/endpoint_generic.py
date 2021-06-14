@@ -14,11 +14,12 @@ def parse_token(token):
 
         user_id = fields[1]
         channel_id = fields[0]
+        password = 'None'
 
         try:
             password = fields[2]
         except IndexError:
-            password = 'None'
+            pass
 
         if requests.get(f"{URL}/{channel_id}/{password}").status_code == 200:
             return channel_id, user_id
