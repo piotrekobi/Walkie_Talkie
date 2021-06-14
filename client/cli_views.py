@@ -176,7 +176,8 @@ class CallView(GenericView):
             self.draw()
             self.event_loop()
 
-        self.call_controller.disconnect()
+        if self.channel_info is not None:
+            self.call_controller.disconnect()
 
     def draw(self):
         self.screen.clear()
