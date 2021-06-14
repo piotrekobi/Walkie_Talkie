@@ -16,6 +16,6 @@ class EndpointSpeaker(EndpointGeneric):
             print(self.name, f'connecting speaker from {address} to channel {channel} with ID {user_id}')
             self.server.add_speaker(channel, user_id, connection)
         except Exception:
-            print(self.name, f'connecting failed! From {address} to channel {channel} with ID {user_id}')
+            print(self.name, f'connecting failed! From {address}')
             connection.close()
 
