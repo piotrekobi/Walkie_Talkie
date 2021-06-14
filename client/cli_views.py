@@ -19,7 +19,6 @@ class GenericView:
         self.title = title
         self.bottom_text = bottom_text
         self.running = False
-        self.start_time = time.time()
         self.global_state = global_state
 
     def show(self, screen):
@@ -178,7 +177,7 @@ class CallView(GenericView):
             if channel_connection_info(channel_id,
                                        self.user_password).status_code == 200:
                 self.correct_password = True
-
+        self.start_time = time.time()
         while self.running:
             self.draw()
             self.event_loop()
@@ -290,7 +289,6 @@ class SelectView(GenericView):
 
         if char_code == 10 or char_code == curses.KEY_ENTER:
             self.global_state.download_channels()
-            self.options[self.cursor_pos].start_time = time.time()
             if self.cursor_pos == 1 and self.global_state.current_channel is not None and self.global_state.current_channel.get(
                     "has_password"):
                 PasswordView(next_screen=self.options[self.cursor_pos],
