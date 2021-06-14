@@ -10,7 +10,7 @@ channels = load_channels("../server/data/channels.json")
 
 class Channels(Resource):
     def get(self):
-        return [{"id": c["id"], "name": c["name"], c["password"]: "password" in c.keys()} for c in channels]
+        return [{"id": c["id"], "name": c["name"], "password": "password" in c.keys()} for c in channels]
 
     def post(self):
         return create_channel(request.get_json(), channels)
