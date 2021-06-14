@@ -3,8 +3,6 @@ from flask_restful import Api, Resource
 
 from rest_api.channel_func import delete_channel, channel_info, detailed_channel_info, create_channel, load_channels
 
-from rest_api.api_func import create_channel
-
 channels = load_channels("../server/data/channels.json")
 
 
