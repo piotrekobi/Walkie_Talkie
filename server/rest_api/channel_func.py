@@ -1,5 +1,5 @@
 import json
-from flask import error
+
 
 def load_channels(filename):
     with open(filename, "r") as f:
