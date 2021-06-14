@@ -1,5 +1,5 @@
 import json
-
+from flask import error
 
 def load_channels(filename):
     with open(filename, "r") as f:
@@ -49,6 +49,6 @@ def channel_info(channel_id, channels):
 
 def detailed_channel_info(channel_id, channels, password):
     _, channel = find_channel(channel_id, channels)
-    if channel and channel["password"] == password:
-        return channel
-    return "Invalid channel ID or password"
+    if channel and (channel["password"] == password or channel["password"] is None):
+        return channel, 200
+    return "Invalid channel ID or password", 401

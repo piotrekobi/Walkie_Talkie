@@ -9,8 +9,12 @@ class EndpointSpeaker(EndpointGeneric):
         connection, address = self.socket.accept()
 
         token = connection.recv(2048)
-        channel, user_id = parse_token(token)
 
-        print(self.name, f'connecting speaker from {address} to channel {channel} with ID {user_id}')
-        self.server.add_speaker(channel, user_id, connection)
+        try:
+            channel, user_id = parse_token(token)
+
+            print(self.name, f'connecting speaker from {address} to channel {channel} with ID {user_id}')
+            self.server.add_speaker(channel, user_id, connection)
+        except Exception:
+            connection.close()
 

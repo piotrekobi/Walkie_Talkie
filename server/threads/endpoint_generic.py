@@ -1,6 +1,10 @@
 from threading import Thread
 
+import requests
 from threads.wrappers.socket_wrapper import SocketWrapper
+
+
+URL = "http://test-project-domain.com:5000/channels"
 
 
 def parse_token(token):
@@ -14,10 +18,12 @@ def parse_token(token):
         try:
             password = fields[2]
         except IndexError:
-            password = None
+            password = 'None'
 
-        return channel_id, user_id
-
+        if requests.get(f"{URL}/{channel_id}/{password}").status_code == 200:
+            return channel_id, user_id
+        else:
+            return None
     except Exception as e:
         print(e)
         return None
