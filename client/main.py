@@ -14,10 +14,7 @@ if __name__ == '__main__':
                                 top_text="Dostępne kanały:",
                                 global_state=global_state),
                        CallView(title='Rozpocznij połączenie',
-                                global_state=global_state),
-                       PasswordView(title="test",
-                                    global_state=global_state,
-                                    top_text="Hasło:")
+                                global_state=global_state)
                    ]))
 
     cli_app.run()

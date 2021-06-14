@@ -27,6 +27,7 @@ class CLIApp:
 class GlobalState:
     def __init__(self):
         self.current_channel = None
+        self.current_channel_name = None
         self.channels = None
 
     def download_channels(self):

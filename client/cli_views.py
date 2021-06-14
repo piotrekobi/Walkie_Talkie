@@ -147,7 +147,8 @@ class ListView(GenericView):
 
     def set_choice(self):
         index = (self.max_y * self.cursor_pos[0] + self.cursor_pos[1])
-        self.global_state.current_channel = self.item_list[index]
+        self.global_state.current_channel_name = self.item_list[index]
+        self.global_state.current_channel = self.global_state.channels[index]
 
 
 class CallView(GenericView):
@@ -161,16 +162,17 @@ class CallView(GenericView):
                                               mic_port=MIC_PORT,
                                               speaker_port=SPEAKER_PORT,
                                               user_id=USER_ID)
+        self.user_password = None
 
     def show(self, screen):
         self.running = True
         self.screen = screen
         curses.halfdelay(10)
 
-        self.channel_info = channel_info = self.global_state.current_channel
+        self.channel_info = channel_info = self.global_state.current_channel_name
         if self.channel_info is not None:
             self.call_controller.connect(
-                int(self.global_state.current_channel.split(':')[0]))
+                self.global_state.current_channel["id"])
 
         while self.running:
             self.draw()
@@ -189,6 +191,7 @@ class CallView(GenericView):
             no_channel_chosen_text = "Brak wybranego kanału"
             self.screen.addstr(1, (x - len(no_channel_chosen_text)) // 2,
                                no_channel_chosen_text, curses.A_STANDOUT)
+        
         else:
             self.top_text = f"Rozmowa na kanale {self.channel_info}"
             self.screen.addstr(1, (x - len(self.top_text)) // 2, self.top_text,
@@ -260,8 +263,8 @@ class SelectView(GenericView):
             pass
 
     def set_current_channel_id(self):
-        if self.global_state.current_channel is not None:
-            self.current_channel_id = self.global_state.current_channel
+        if self.global_state.current_channel_name is not None:
+            self.current_channel_id = self.global_state.current_channel_name
 
     def event_loop(self):
         char_code = self.screen.getch()
@@ -278,7 +281,13 @@ class SelectView(GenericView):
         if char_code == 10 or char_code == curses.KEY_ENTER:
             self.global_state.download_channels()
             self.options[self.cursor_pos].start_time = time.time()
-            self.options[self.cursor_pos].show(self.screen)
+            if self.cursor_pos == 1 and self.global_state.current_channel[
+                    "has_password"]:
+                PasswordView(next_screen=self.options[self.cursor_pos],
+                             global_state=self.global_state,
+                             top_text="Hasło:").show(self.screen)
+            else:
+                self.options[self.cursor_pos].show(self.screen)
 
         self.set_current_channel_id()
 
@@ -286,9 +295,10 @@ class SelectView(GenericView):
 class PasswordView(GenericView):
     def __init__(
             self,
-            title,
+            next_screen,
             global_state,
             top_text,
+            title=None,
             bottom_text="  Aby cofnąć do poprzedniego ekranu wciśnij 'q'"):
         super().__init__(title, global_state, bottom_text=bottom_text)
         self.cursor_pos = [0, 0]
@@ -297,6 +307,7 @@ class PasswordView(GenericView):
         self.top_text = top_text
         self.keyboard_buttons = [str(i) for i in range(1, 10)]
         self.keyboard_buttons.append("0")
+        self.next_screen = next_screen
 
     def show(self, screen):
         self.running = True
@@ -374,7 +385,7 @@ class PasswordView(GenericView):
         if char_code == 10 or char_code == curses.KEY_ENTER:
             self.set_password_num()
 
-        # char_code =
+        # char_code = delete
         if char_code == 127 or char_code == curses.KEY_BACKSPACE:
             self.delete_password_num()
 
@@ -390,7 +401,11 @@ class PasswordView(GenericView):
                                            self.cursor_pos[1] * 3]
 
         self.password[self.current_index] = number
-        self.current_index = min(3, self.current_index + 1)
+        self.current_index = min(4, self.current_index + 1)
+        if self.current_index == 4:
+            self.next_screen.user_password = "".join(self.password)
+            self.running = False
+            self.next_screen.show(self.screen)
 
     def delete_password_num(self):
         self.current_index = max(0, self.current_index - 1)
@@ -402,3 +417,6 @@ class PasswordView(GenericView):
         self.current_cursor_max_height = 3
         if self.cursor_pos[0] == 1:
             self.current_cursor_max_height = 4
+
+
+[]
