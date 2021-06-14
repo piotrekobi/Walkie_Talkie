@@ -1,7 +1,7 @@
 import time
 from call_controler import CallController
 from cli_app import CLIApp, GlobalState
-from cli_views import GenericView, SelectView, ListView, CallView, PasswordView
+from cli_views import GenericView, SelectView, ListView, CallView, PasswordView, AddView
 
 if __name__ == '__main__':
     global_state = GlobalState()
@@ -14,7 +14,8 @@ if __name__ == '__main__':
                                 top_text="Dostępne kanały:",
                                 global_state=global_state),
                        CallView(title='Rozpocznij połączenie',
-                                global_state=global_state)
+                                global_state=global_state),
+                       AddView(title="Dodaj kanał", global_state=global_state)
                    ]))
 
     cli_app.run()
