@@ -10,7 +10,11 @@ channels = load_channels("../server/data/channels.json")
 
 class Channels(Resource):
     def get(self):
-        return [{"id": c["id"], "name": c["name"], "has_password": c["password"] is None} for c in channels]
+        return [{
+            "id": c["id"],
+            "name": c["name"],
+            "has_password": c["password"] is None
+        } for c in channels]
 
     def post(self):
         return create_channel(request.get_json(), channels)
@@ -41,7 +45,8 @@ class FlaskRunner:
 
         self.api.add_resource(Channels, '/channels')
         self.api.add_resource(ChannelId, '/channels/<int:channel_id>')
-        self.api.add_resource(ChannelIdPass, '/channels/<int:channel_id>/<string:password>')
+        self.api.add_resource(ChannelIdPass,
+                              '/channels/<int:channel_id>/<string:password>')
 
     def run(self):
         print(self.name, 'starting...')
