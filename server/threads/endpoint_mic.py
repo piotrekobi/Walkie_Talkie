@@ -16,6 +16,7 @@ class EndpointMic(EndpointGeneric):
             print(self.name, f'connecting mic from {address} to channel {channel} with ID {user_id}')
             self.server.add_mic(channel, user_id, connection)
         except Exception:
+            print(self.name, f'connecting failed! From {address} to channel {channel} with ID {user_id}')
             connection.close()
 
 
