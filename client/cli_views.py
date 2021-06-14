@@ -163,9 +163,9 @@ class CallView(GenericView):
                                               speaker_port=SPEAKER_PORT,
                                               user_id=USER_ID)
         self.user_password = None
-        self.correct_password = False
 
     def show(self, screen):
+        self.correct_password = False
         self.running = True
         self.screen = screen
         curses.halfdelay(10)
@@ -173,10 +173,11 @@ class CallView(GenericView):
         self.channel_info = channel_info = self.global_state.current_channel_name
         if self.channel_info is not None:
             channel_id = self.global_state.current_channel["id"]
-            self.call_controller.connect(channel_id)
+            self.call_controller.connect(channel_id, self.user_password)
             if channel_connection_info(channel_id,
                                        self.user_password).status_code == 200:
                 self.correct_password = True
+                self.user_password = None
         self.start_time = time.time()
         while self.running:
             self.draw()
