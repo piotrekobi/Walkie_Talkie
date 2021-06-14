@@ -1,7 +1,7 @@
 import curses
 import curses.textpad
 import time
-from rest_api_func import channel_connection_info, create_channel
+from rest_api_func import channel_connection_info, create_channel, delete_channel
 from call_controler import CallController
 from config.server import SERVER_URL, MIC_PORT, SPEAKER_PORT, USER_ID
 
@@ -187,37 +187,41 @@ class CallView(GenericView):
             self.call_controller.disconnect()
 
     def draw(self):
-        self.screen.clear()
-        self.screen.border(0)
-
-        y, x = self.screen.getmaxyx()
-
-        if self.channel_info is None:
-            no_channel_chosen_text = "Brak wybranego kanału"
-            self.screen.addstr(5, (x - len(no_channel_chosen_text)) // 2,
-                               no_channel_chosen_text, curses.A_STANDOUT)
-
-        elif self.correct_password is False:
-            wrong_password_text = "Nieprawidłowe hasło"
-            self.screen.addstr(5, (x - len(wrong_password_text)) // 2,
-                               wrong_password_text, curses.A_STANDOUT)
-
-        else:
-            self.top_text = f"Rozmowa na kanale {self.channel_info}"
-            self.screen.addstr(1, (x - len(self.top_text)) // 2, self.top_text,
-                               curses.A_STANDOUT)
-
-            call_time = round(time.time() - self.start_time)
-            minutes, seconds = divmod(call_time, 60)
-            time_text = f"Czas rozmowy: {minutes:02d}:{seconds:02d}"
-            self.screen.addstr(3, (x - len(time_text)) // 2, time_text,
-                               curses.A_NORMAL)
-
-        self.screen.addstr(
-            y - 1, 0, self.bottom_text + ' ' * (x - 1 - len(self.bottom_text)),
-            curses.A_STANDOUT)
         try:
-            self.screen.addch(y - 1, x - 1, ' ', curses.A_STANDOUT)
+            self.screen.clear()
+            self.screen.border(0)
+
+            y, x = self.screen.getmaxyx()
+
+            if self.channel_info is None:
+                no_channel_chosen_text = "Brak wybranego kanału"
+                self.screen.addstr(5, (x - len(no_channel_chosen_text)) // 2,
+                                   no_channel_chosen_text, curses.A_STANDOUT)
+
+            elif self.correct_password is False:
+                wrong_password_text = "Nieprawidłowe hasło"
+                self.screen.addstr(5, (x - len(wrong_password_text)) // 2,
+                                   wrong_password_text, curses.A_STANDOUT)
+
+            else:
+                self.top_text = f"Rozmowa na kanale {self.channel_info}"
+                self.screen.addstr(1, (x - len(self.top_text)) // 2,
+                                   self.top_text, curses.A_STANDOUT)
+
+                call_time = round(time.time() - self.start_time)
+                minutes, seconds = divmod(call_time, 60)
+                time_text = f"Czas rozmowy: {minutes:02d}:{seconds:02d}"
+                self.screen.addstr(3, (x - len(time_text)) // 2, time_text,
+                                   curses.A_NORMAL)
+
+            self.screen.addstr(
+                y - 1, 0,
+                self.bottom_text + ' ' * (x - 1 - len(self.bottom_text)),
+                curses.A_STANDOUT)
+            try:
+                self.screen.addch(y - 1, x - 1, ' ', curses.A_STANDOUT)
+            except curses.error:
+                pass
         except curses.error:
             pass
 
@@ -239,64 +243,112 @@ class SelectView(GenericView):
         self.cursor_pos = 0
         self.top_text = top_text
         self.current_channel_id = "Brak"
+        self.user_password = None
+        self.num_options = 2
+
+    def show(self, screen):
+        self.invalid_password = False
+        self.running = True
+        self.screen = screen
+        if self.user_password is not None:
+            if channel_connection_info(self.global_state.current_channel["id"],
+                                       self.user_password).status_code == 200:
+                self.delete_current_channel()
+            else:
+                self.invalid_password = True
+        while self.running:
+            self.draw()
+            self.event_loop()
 
     def draw(self):
         self.screen.clear()
         self.screen.border(0)
 
         y, x = self.screen.getmaxyx()
-
-        self.screen.addstr(1, (x - len(self.title)) // 2, self.title,
-                           curses.A_STANDOUT)
-
-        self.screen.addstr(2, 3, self.top_text, curses.A_NORMAL)
-
-        self.screen.addstr(2, 4 + len(self.top_text), self.current_channel_id,
-                           curses.A_STANDOUT)
-
-        pos = 4
-        for i in range(len(self.options)):
-            style = curses.A_NORMAL
-
-            if i == self.cursor_pos:
-                style = curses.A_STANDOUT
-
-            self.screen.addstr(pos, 3, self.options[i].title, style)
-            pos += 1
-
-        self.screen.addstr(
-            y - 1, 0, self.bottom_text + ' ' * (x - 1 - len(self.bottom_text)),
-            curses.A_STANDOUT)
         try:
-            self.screen.addch(y - 1, x - 1, ' ', curses.A_STANDOUT)
+            if self.invalid_password:
+                wrong_password_text = "Nieprawidłowe hasło"
+                self.screen.addstr(5, (x - len(wrong_password_text)) // 2,
+                                   wrong_password_text, curses.A_STANDOUT)
+            else:
+                self.screen.addstr(1, (x - len(self.title)) // 2, self.title,
+                                   curses.A_STANDOUT)
+
+                self.screen.addstr(2, 3, self.top_text, curses.A_NORMAL)
+
+                self.screen.addstr(2, 4 + len(self.top_text),
+                                   self.current_channel_id, curses.A_STANDOUT)
+
+                pos = 4
+                for i in range(self.num_options):
+                    style = curses.A_NORMAL
+
+                    if i == self.cursor_pos:
+                        style = curses.A_STANDOUT
+
+                    self.screen.addstr(pos, 3, self.options[i].title, style)
+                    pos += 1
+
+                self.screen.addstr(
+                    y - 1, 0,
+                    self.bottom_text + ' ' * (x - 1 - len(self.bottom_text)),
+                    curses.A_STANDOUT)
+                try:
+                    self.screen.addch(y - 1, x - 1, ' ', curses.A_STANDOUT)
+                except curses.error:
+                    pass
         except curses.error:
             pass
 
     def set_current_channel_id(self):
+        self.num_options = 2
         if self.global_state.current_channel_name is not None:
             self.current_channel_id = self.global_state.current_channel_name
+            self.num_options = 4
+
+    def delete_current_channel(self):
+        delete_channel(self.global_state.current_channel["id"],
+                       self.user_password)
+        self.current_channel_id = "Brak"
+        self.global_state.current_channel_name = None
+        self.user_password = None
 
     def event_loop(self):
         char_code = self.screen.getch()
 
         if char_code == ord('q'):
-            self.running = False
+            if self.invalid_password:
+                self.user_password = None
+                self.show(self.screen)
+            else:
+                self.running = False
 
         if char_code == curses.KEY_UP:
-            self.cursor_pos = (self.cursor_pos - 1) % len(self.options)
+            self.cursor_pos = (self.cursor_pos - 1) % self.num_options
 
         if char_code == curses.KEY_DOWN:
-            self.cursor_pos = (self.cursor_pos + 1) % len(self.options)
+            self.cursor_pos = (self.cursor_pos + 1) % self.num_options
 
         if char_code == 10 or char_code == curses.KEY_ENTER:
-            self.global_state.download_channels()
-            if self.cursor_pos == 1 and self.global_state.current_channel is not None and self.global_state.current_channel.get(
-                    "has_password"):
-                PasswordView(next_screen=self.options[self.cursor_pos],
-                             global_state=self.global_state,
-                             top_text="Podaj hasło:").show(self.screen)
+            if self.invalid_password:
+                self.user_password = None
+                self.show(self.screen)
             else:
-                self.options[self.cursor_pos].show(self.screen)
+                self.global_state.download_channels()
+                if self.cursor_pos == 2 and self.global_state.current_channel is not None and self.global_state.current_channel.get(
+                        "has_password"):
+                    PasswordView(next_screen=self.options[self.cursor_pos],
+                                 global_state=self.global_state,
+                                 top_text="Podaj hasło:").show(self.screen)
+                elif self.cursor_pos == 3:
+                    if self.global_state.current_channel["has_password"]:
+                        PasswordView(next_screen=self,
+                                     global_state=self.global_state,
+                                     top_text="Podaj hasło:").show(self.screen)
+                    else:
+                        self.delete_current_channel()
+                else:
+                    self.options[self.cursor_pos].show(self.screen)
 
         self.set_current_channel_id()
 
@@ -333,37 +385,41 @@ class PasswordView(GenericView):
         self.screen.border(0)
 
         y, x = self.screen.getmaxyx()
-        rectangle_x, rectangle_y = (x // 2) - 6, 2
-
-        self.screen.addstr(1, rectangle_x, self.top_text, curses.A_NORMAL)
-
-        curses.textpad.rectangle(self.screen, rectangle_y, rectangle_x,
-                                 rectangle_y + 2, rectangle_x + 12)
-
-        for i, num in enumerate(self.password):
-            if num is not None:
-                self.screen.addstr(3, rectangle_x + 1 + i * 3, num,
-                                   curses.A_NORMAL)
-
-        first_button_x_pos = (x // 2) - 4
-        for i, button in enumerate(self.keyboard_buttons):
-            style = curses.A_NORMAL
-            if self.cursor_pos == [(i % 3), (i // 3)]:
-                style = curses.A_STANDOUT
-
-            x_pos = first_button_x_pos + (4 * (i % 3))
-            y_pos = 5 + (2 * (i // 3))
-            if i == 9:
-                x_pos += 4
-                if self.cursor_pos == [1, 3]:
-                    style = curses.A_STANDOUT
-            self.screen.addstr(y_pos, x_pos, button, style)
-
-        self.screen.addstr(
-            y - 1, 0, self.bottom_text + ' ' * (x - 1 - len(self.bottom_text)),
-            curses.A_STANDOUT)
         try:
-            self.screen.addch(y - 1, x - 1, ' ', curses.A_STANDOUT)
+            rectangle_x, rectangle_y = (x // 2) - 6, 2
+
+            self.screen.addstr(1, rectangle_x, self.top_text, curses.A_NORMAL)
+
+            curses.textpad.rectangle(self.screen, rectangle_y, rectangle_x,
+                                     rectangle_y + 2, rectangle_x + 12)
+
+            for i, num in enumerate(self.password):
+                if num is not None:
+                    self.screen.addstr(3, rectangle_x + 1 + i * 3, num,
+                                       curses.A_NORMAL)
+
+            first_button_x_pos = (x // 2) - 4
+            for i, button in enumerate(self.keyboard_buttons):
+                style = curses.A_NORMAL
+                if self.cursor_pos == [(i % 3), (i // 3)]:
+                    style = curses.A_STANDOUT
+
+                x_pos = first_button_x_pos + (4 * (i % 3))
+                y_pos = 5 + (2 * (i // 3))
+                if i == 9:
+                    x_pos += 4
+                    if self.cursor_pos == [1, 3]:
+                        style = curses.A_STANDOUT
+                self.screen.addstr(y_pos, x_pos, button, style)
+
+            self.screen.addstr(
+                y - 1, 0,
+                self.bottom_text + ' ' * (x - 1 - len(self.bottom_text)),
+                curses.A_STANDOUT)
+            try:
+                self.screen.addch(y - 1, x - 1, ' ', curses.A_STANDOUT)
+            except curses.error:
+                pass
         except curses.error:
             pass
 
@@ -429,16 +485,13 @@ class PasswordView(GenericView):
 
 
 class AddView(GenericView):
-    def __init__(
-        self,
-        title,
-        global_state,
-        bottom_text='  q - powró† do menu;  p  - przełączenie ustawienia hasła;  u - zmiana wielkości litery;  ENTER - utworzenie kanału'
-    ):
+    def __init__(self, title, global_state, bottom_text=None):
         super().__init__(title, global_state, bottom_text=bottom_text)
         self.top_text = "Dodawanie kanału"
         self.password_options = ["Nie", "Tak"]
         self.user_password = None
+        self.bottom_text = '  q - powró† do menu           p  - przełączenie ustawienia hasła'
+        self.bottom_text_2 = '  u - zmiana wielkości litery  ENTER - utworzenie kanału'
 
     def show(self, screen):
         self.running = True
@@ -460,32 +513,39 @@ class AddView(GenericView):
         self.screen.border(0)
 
         y, x = self.screen.getmaxyx()
-
-        self.screen.addstr(1, (x - len(self.top_text)) // 2, self.top_text,
-                           curses.A_STANDOUT)
-        text_pos_x = x // 4
-        name_prompt = "Nazwa kanału:"
-        pass_prompt = "Wymagaj hasła:"
-        self.screen.addstr(5, text_pos_x, name_prompt, curses.A_NORMAL)
-        self.screen.addstr(7, text_pos_x, pass_prompt, curses.A_NORMAL)
-
-        for i, char in enumerate(self.input_name):
-            char_pos = text_pos_x + len(name_prompt) + 1 + 2 * i
-            style = curses.A_NORMAL
-            if self.cursor_pos == i:
-                style = curses.A_STANDOUT
-            self.screen.addstr(5, char_pos, char, style)
-
-        pass_pos = text_pos_x + len(pass_prompt) + 1
-        self.screen.addstr(7, pass_pos,
-                           self.password_options[self.pass_choice],
-                           curses.A_STANDOUT)
-
-        self.screen.addstr(
-            y - 1, 0, self.bottom_text + ' ' * (x - 1 - len(self.bottom_text)),
-            curses.A_STANDOUT)
         try:
-            self.screen.addch(y - 1, x - 1, ' ', curses.A_STANDOUT)
+            self.screen.addstr(1, (x - len(self.top_text)) // 2, self.top_text,
+                               curses.A_STANDOUT)
+            text_pos_x = x // 6
+            name_prompt = "Nazwa kanału:"
+            pass_prompt = "Wymagaj hasła:"
+            self.screen.addstr(5, text_pos_x, name_prompt, curses.A_NORMAL)
+            self.screen.addstr(7, text_pos_x, pass_prompt, curses.A_NORMAL)
+
+            for i, char in enumerate(self.input_name):
+                char_pos = text_pos_x + len(name_prompt) + 1 + 2 * i
+                style = curses.A_NORMAL
+                if self.cursor_pos == i:
+                    style = curses.A_STANDOUT
+                self.screen.addstr(5, char_pos, char, style)
+
+            pass_pos = text_pos_x + len(pass_prompt) + 1
+            self.screen.addstr(7, pass_pos,
+                               self.password_options[self.pass_choice],
+                               curses.A_STANDOUT)
+
+            self.screen.addstr(
+                y - 2, 0,
+                self.bottom_text + ' ' * (x - 1 - len(self.bottom_text)),
+                curses.A_STANDOUT)
+            self.screen.addstr(
+                y - 1, 0,
+                self.bottom_text_2 + ' ' * (x - 1 - len(self.bottom_text_2)),
+                curses.A_STANDOUT)
+            try:
+                self.screen.addch(y - 1, x - 1, ' ', curses.A_STANDOUT)
+            except curses.error:
+                pass
         except curses.error:
             pass
 
@@ -509,6 +569,8 @@ class AddView(GenericView):
             self.input_name[self.cursor_pos] = current_letter.upper()
 
     def add_channel(self):
+        if self.channel_name == "":
+            self.channel_name = "def"
         params = channel = {
             "name": self.channel_name,
             "password": self.user_password

@@ -13,9 +13,11 @@ if __name__ == '__main__':
                        ListView(title='Wybierz kanał',
                                 top_text="Dostępne kanały:",
                                 global_state=global_state),
+                       AddView(title="Dodaj kanał", global_state=global_state),
                        CallView(title='Rozpocznij połączenie',
                                 global_state=global_state),
-                       AddView(title="Dodaj kanał", global_state=global_state)
+                       GenericView(title="Usuń wybrany kanał",
+                                   global_state=global_state)
                    ]))
 
     cli_app.run()
