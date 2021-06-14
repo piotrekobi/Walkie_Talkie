@@ -4,8 +4,23 @@ from threads.wrappers.socket_wrapper import SocketWrapper
 
 
 def parse_token(token):
-    text = token.decode('utf-8')
-    return text.split('-')
+    try:
+        text = token.decode('utf-8')
+        fields = text.split('-')
+
+        user_id = fields[1]
+        channel_id = fields[0]
+
+        try:
+            password = fields[2]
+        except IndexError:
+            password = None
+
+        return channel_id, user_id
+
+    except Exception as e:
+        print(e)
+        return None
 
 
 class EndpointGeneric(Thread):
