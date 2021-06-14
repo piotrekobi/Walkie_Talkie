@@ -1,6 +1,7 @@
 import curses
 import curses.textpad
 import time
+from rest_api_func import channel_connection_info
 from call_controler import CallController
 from config.server import SERVER_URL, MIC_PORT, SPEAKER_PORT, USER_ID
 
@@ -163,6 +164,7 @@ class CallView(GenericView):
                                               speaker_port=SPEAKER_PORT,
                                               user_id=USER_ID)
         self.user_password = None
+        self.correct_password = False
 
     def show(self, screen):
         self.running = True
@@ -171,8 +173,11 @@ class CallView(GenericView):
 
         self.channel_info = channel_info = self.global_state.current_channel_name
         if self.channel_info is not None:
-            self.call_controller.connect(
-                self.global_state.current_channel["id"])
+            channel_id = self.global_state.current_channel["id"]
+            self.call_controller.connect(channel_id)
+            if channel_connection_info(channel_id,
+                                       self.user_password).status_code == 200:
+                self.correct_password = True
 
         while self.running:
             self.draw()
@@ -189,9 +194,14 @@ class CallView(GenericView):
 
         if self.channel_info is None:
             no_channel_chosen_text = "Brak wybranego kanału"
-            self.screen.addstr(1, (x - len(no_channel_chosen_text)) // 2,
+            self.screen.addstr(5, (x - len(no_channel_chosen_text)) // 2,
                                no_channel_chosen_text, curses.A_STANDOUT)
-        
+
+        elif self.correct_password is False:
+            wrong_password_text = "Nieprawidłowe hasło"
+            self.screen.addstr(5, (x - len(wrong_password_text)) // 2,
+                               wrong_password_text, curses.A_STANDOUT)
+
         else:
             self.top_text = f"Rozmowa na kanale {self.channel_info}"
             self.screen.addstr(1, (x - len(self.top_text)) // 2, self.top_text,
@@ -281,8 +291,8 @@ class SelectView(GenericView):
         if char_code == 10 or char_code == curses.KEY_ENTER:
             self.global_state.download_channels()
             self.options[self.cursor_pos].start_time = time.time()
-            if self.cursor_pos == 1 and self.global_state.current_channel[
-                    "has_password"]:
+            if self.cursor_pos == 1 and self.global_state.current_channel is not None and self.global_state.current_channel.get(
+                    "has_password"):
                 PasswordView(next_screen=self.options[self.cursor_pos],
                              global_state=self.global_state,
                              top_text="Hasło:").show(self.screen)
