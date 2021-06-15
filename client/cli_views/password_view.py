@@ -48,14 +48,6 @@ class PasswordView(GenericView):
                         style = curses.A_STANDOUT
                 self.screen.addstr(y_pos, x_pos, button, style)
 
-            self.screen.addstr(
-                self.max_y - 1, 0, self.bottom_text + ' ' *
-                (self.max_x - 1 - len(self.bottom_text)), curses.A_STANDOUT)
-            try:
-                self.screen.addch(self.max_y - 1, self.max_x - 1, ' ',
-                                  curses.A_STANDOUT)
-            except curses.error:
-                pass
         except curses.error:
             pass
 

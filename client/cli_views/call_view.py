@@ -62,18 +62,5 @@ class CallView(GenericView):
                 self.screen.addstr(3, (self.max_x - len(time_text)) // 2,
                                    time_text, curses.A_NORMAL)
 
-            self.screen.addstr(
-                self.max_y - 1, 0, self.bottom_text + ' ' *
-                (self.max_x - 1 - len(self.bottom_text)), curses.A_STANDOUT)
-            try:
-                self.screen.addch(self.max_y - 1, self.max_x - 1, ' ',
-                                  curses.A_STANDOUT)
-            except curses.error:
-                pass
         except curses.error:
             pass
-
-    def event_loop(self):
-        char_code = self.screen.getch()
-        if char_code == ord('q'):
-            self.running = False

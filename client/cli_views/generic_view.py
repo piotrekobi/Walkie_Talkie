@@ -24,11 +24,24 @@ class GenericView:
         while self.running:
             self.clear_screen()
             self.max_y, self.max_x = self.screen.getmaxyx()
+            self.bottom_text_pos = self.max_y - 1
             self.set_cursor_max()
             self.draw()
+            self.set_bottom_text()
             self.event_loop()
 
         self.end_view()
+
+    def set_bottom_text(self):
+        self.screen.addstr(
+            self.bottom_text_pos, 0,
+            self.bottom_text + ' ' * (self.max_x - 1 - len(self.bottom_text)),
+            curses.A_STANDOUT)
+        try:
+            self.screen.addch(self.max_y - 1, self.max_x - 1, ' ',
+                              curses.A_STANDOUT)
+        except curses.error:
+            pass
 
     def set_cursor_max(self):
         pass

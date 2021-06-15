@@ -54,15 +54,6 @@ class SelectView(GenericView):
                     self.screen.addstr(pos, 3, self.options[i].title, style)
                     pos += 1
 
-                self.screen.addstr(
-                    self.max_y - 1, 0, self.bottom_text + ' ' *
-                    (self.max_x - 1 - len(self.bottom_text)),
-                    curses.A_STANDOUT)
-                try:
-                    self.screen.addch(self.max_y - 1, self.max_x - 1, ' ',
-                                      curses.A_STANDOUT)
-                except curses.error:
-                    pass
         except curses.error:
             pass
 
@@ -79,6 +70,22 @@ class SelectView(GenericView):
         self.global_state.current_channel_name = None
         self.global_state.current_channel = None
         self.user_password = None
+
+    def set_next_view(self):
+        if self.cursor_pos == 2 and self.global_state.current_channel is not None and self.global_state.current_channel.get(
+                "has_password"):
+            PasswordView(next_screen=self.options[self.cursor_pos],
+                         global_state=self.global_state,
+                         top_text="Podaj hasło:").show(self.screen)
+        elif self.cursor_pos == 3:
+            if self.global_state.current_channel["has_password"]:
+                PasswordView(next_screen=self,
+                             global_state=self.global_state,
+                             top_text="Podaj hasło:").show(self.screen)
+            else:
+                self.delete_current_channel()
+        else:
+            self.options[self.cursor_pos].show(self.screen)
 
     def event_loop(self):
         char_code = self.screen.getch()
@@ -102,19 +109,6 @@ class SelectView(GenericView):
                 self.show(self.screen)
             else:
                 self.global_state.download_channels()
-                if self.cursor_pos == 2 and self.global_state.current_channel is not None and self.global_state.current_channel.get(
-                        "has_password"):
-                    PasswordView(next_screen=self.options[self.cursor_pos],
-                                 global_state=self.global_state,
-                                 top_text="Podaj hasło:").show(self.screen)
-                elif self.cursor_pos == 3:
-                    if self.global_state.current_channel["has_password"]:
-                        PasswordView(next_screen=self,
-                                     global_state=self.global_state,
-                                     top_text="Podaj hasło:").show(self.screen)
-                    else:
-                        self.delete_current_channel()
-                else:
-                    self.options[self.cursor_pos].show(self.screen)
+                self.set_next_view()
 
         self.set_current_channel_id()

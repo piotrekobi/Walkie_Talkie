@@ -10,8 +10,8 @@ class AddView(GenericView):
         self.top_text = "Dodawanie kanału"
         self.password_options = ["Nie", "Tak"]
         self.user_password = None
-        self.bottom_text = '  q - powró† do menu           p  - przełączenie ustawienia hasła'
-        self.bottom_text_2 = '  u - zmiana wielkości litery  ENTER - utworzenie kanału'
+        self.bottom_text = '  u - zmiana wielkości litery  ENTER - utworzenie kanału'
+        self.bottom_text_2 = '  q - powró† do menu           p  - przełączenie ustawienia hasła'
 
     def set_start_params(self):
         self.input_name = ["_", "_", "_", "_", "_"]
@@ -44,16 +44,9 @@ class AddView(GenericView):
                                curses.A_STANDOUT)
 
             self.screen.addstr(
-                self.max_y - 2, 0, self.bottom_text + ' ' *
-                (self.max_x - 1 - len(self.bottom_text)), curses.A_STANDOUT)
-            self.screen.addstr(
-                self.max_y - 1, 0, self.bottom_text_2 + ' ' *
+                self.max_y - 2, 0, self.bottom_text_2 + ' ' *
                 (self.max_x - 1 - len(self.bottom_text_2)), curses.A_STANDOUT)
-            try:
-                self.screen.addch(self.max_y - 1, self.max_x - 1, ' ',
-                                  curses.A_STANDOUT)
-            except curses.error:
-                pass
+
         except curses.error:
             pass
 
