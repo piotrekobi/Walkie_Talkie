@@ -1,7 +1,9 @@
-import time
-from call_controler import CallController
 from cli_app import CLIApp, GlobalState
-from cli_views import GenericView, SelectView, ListView, CallView, PasswordView, AddView
+from cli_views.add_view import AddView
+from cli_views.call_view import CallView
+from cli_views.generic_view import GenericView
+from cli_views.list_view import ListView
+from cli_views.select_view import SelectView
 
 if __name__ == '__main__':
     global_state = GlobalState()
