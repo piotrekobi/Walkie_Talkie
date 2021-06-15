@@ -1,0 +1,1 @@
+python3 client/main.py 2> /dev/null
