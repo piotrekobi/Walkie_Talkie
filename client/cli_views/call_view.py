@@ -19,10 +19,8 @@ class CallView(GenericView):
                                               user_id=USER_ID)
         self.user_password = None
 
-    def show(self, screen):
+    def set_start_params(self):
         self.correct_password = False
-        self.running = True
-        self.screen = screen
         curses.halfdelay(10)
 
         self.channel_info = channel_info = self.global_state.current_channel_name
@@ -34,47 +32,42 @@ class CallView(GenericView):
                 self.correct_password = True
                 self.user_password = None
         self.start_time = time.time()
-        while self.running:
-            self.draw()
-            self.event_loop()
 
+    def end_view(self):
         if self.channel_info is not None:
             self.call_controller.disconnect()
 
     def draw(self):
         try:
-            self.screen.clear()
-            self.screen.border(0)
-
-            y, x = self.screen.getmaxyx()
-
             if self.channel_info is None:
                 no_channel_chosen_text = "Brak wybranego kanału"
-                self.screen.addstr(5, (x - len(no_channel_chosen_text)) // 2,
-                                   no_channel_chosen_text, curses.A_STANDOUT)
+                self.screen.addstr(
+                    5, (self.max_x - len(no_channel_chosen_text)) // 2,
+                    no_channel_chosen_text, curses.A_STANDOUT)
 
             elif self.correct_password is False:
                 wrong_password_text = "Nieprawidłowe hasło"
-                self.screen.addstr(5, (x - len(wrong_password_text)) // 2,
-                                   wrong_password_text, curses.A_STANDOUT)
+                self.screen.addstr(
+                    5, (self.max_x - len(wrong_password_text)) // 2,
+                    wrong_password_text, curses.A_STANDOUT)
 
             else:
                 self.top_text = f"Rozmowa na kanale {self.channel_info}"
-                self.screen.addstr(1, (x - len(self.top_text)) // 2,
+                self.screen.addstr(1, (self.max_x - len(self.top_text)) // 2,
                                    self.top_text, curses.A_STANDOUT)
 
                 call_time = round(time.time() - self.start_time)
                 minutes, seconds = divmod(call_time, 60)
                 time_text = f"Czas rozmowy: {minutes:02d}:{seconds:02d}"
-                self.screen.addstr(3, (x - len(time_text)) // 2, time_text,
-                                   curses.A_NORMAL)
+                self.screen.addstr(3, (self.max_x - len(time_text)) // 2,
+                                   time_text, curses.A_NORMAL)
 
             self.screen.addstr(
-                y - 1, 0,
-                self.bottom_text + ' ' * (x - 1 - len(self.bottom_text)),
-                curses.A_STANDOUT)
+                self.max_y - 1, 0, self.bottom_text + ' ' *
+                (self.max_x - 1 - len(self.bottom_text)), curses.A_STANDOUT)
             try:
-                self.screen.addch(y - 1, x - 1, ' ', curses.A_STANDOUT)
+                self.screen.addch(self.max_y - 1, self.max_x - 1, ' ',
+                                  curses.A_STANDOUT)
             except curses.error:
                 pass
         except curses.error:

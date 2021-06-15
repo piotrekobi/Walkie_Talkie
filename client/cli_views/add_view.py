@@ -13,10 +13,7 @@ class AddView(GenericView):
         self.bottom_text = '  q - powró† do menu           p  - przełączenie ustawienia hasła'
         self.bottom_text_2 = '  u - zmiana wielkości litery  ENTER - utworzenie kanału'
 
-    def show(self, screen):
-        self.running = True
-        self.screen = screen
-
+    def set_start_params(self):
         self.input_name = ["_", "_", "_", "_", "_"]
         self.cursor_pos = 0
         self.pass_choice = 0
@@ -24,19 +21,11 @@ class AddView(GenericView):
         if self.user_password is not None:
             self.add_channel()
 
-        while self.running:
-            self.draw()
-            self.event_loop()
-
     def draw(self):
-        self.screen.clear()
-        self.screen.border(0)
-
-        y, x = self.screen.getmaxyx()
         try:
-            self.screen.addstr(1, (x - len(self.top_text)) // 2, self.top_text,
-                               curses.A_STANDOUT)
-            text_pos_x = x // 6
+            self.screen.addstr(1, (self.max_x - len(self.top_text)) // 2,
+                               self.top_text, curses.A_STANDOUT)
+            text_pos_x = self.max_x // 6
             name_prompt = "Nazwa kanału:"
             pass_prompt = "Wymagaj hasła:"
             self.screen.addstr(5, text_pos_x, name_prompt, curses.A_NORMAL)
@@ -55,15 +44,14 @@ class AddView(GenericView):
                                curses.A_STANDOUT)
 
             self.screen.addstr(
-                y - 2, 0,
-                self.bottom_text + ' ' * (x - 1 - len(self.bottom_text)),
-                curses.A_STANDOUT)
+                self.max_y - 2, 0, self.bottom_text + ' ' *
+                (self.max_x - 1 - len(self.bottom_text)), curses.A_STANDOUT)
             self.screen.addstr(
-                y - 1, 0,
-                self.bottom_text_2 + ' ' * (x - 1 - len(self.bottom_text_2)),
-                curses.A_STANDOUT)
+                self.max_y - 1, 0, self.bottom_text_2 + ' ' *
+                (self.max_x - 1 - len(self.bottom_text_2)), curses.A_STANDOUT)
             try:
-                self.screen.addch(y - 1, x - 1, ' ', curses.A_STANDOUT)
+                self.screen.addch(self.max_y - 1, self.max_x - 1, ' ',
+                                  curses.A_STANDOUT)
             except curses.error:
                 pass
         except curses.error:

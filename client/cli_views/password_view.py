@@ -20,23 +20,9 @@ class PasswordView(GenericView):
         self.keyboard_buttons.append("0")
         self.next_screen = next_screen
 
-    def show(self, screen):
-        self.running = True
-        self.screen = screen
-
-        while self.running:
-            self.set_max_y_x()
-            self.set_cursor_max()
-            self.draw()
-            self.event_loop()
-
     def draw(self):
-        self.screen.clear()
-        self.screen.border(0)
-
-        y, x = self.screen.getmaxyx()
         try:
-            rectangle_x, rectangle_y = (x // 2) - 6, 2
+            rectangle_x, rectangle_y = (self.max_x // 2) - 6, 2
 
             self.screen.addstr(1, rectangle_x, self.top_text, curses.A_NORMAL)
 
@@ -48,7 +34,7 @@ class PasswordView(GenericView):
                     self.screen.addstr(3, rectangle_x + 1 + i * 3, num,
                                        curses.A_NORMAL)
 
-            first_button_x_pos = (x // 2) - 4
+            first_button_x_pos = (self.max_x // 2) - 4
             for i, button in enumerate(self.keyboard_buttons):
                 style = curses.A_NORMAL
                 if self.cursor_pos == [(i % 3), (i // 3)]:
@@ -63,11 +49,11 @@ class PasswordView(GenericView):
                 self.screen.addstr(y_pos, x_pos, button, style)
 
             self.screen.addstr(
-                y - 1, 0,
-                self.bottom_text + ' ' * (x - 1 - len(self.bottom_text)),
-                curses.A_STANDOUT)
+                self.max_y - 1, 0, self.bottom_text + ' ' *
+                (self.max_x - 1 - len(self.bottom_text)), curses.A_STANDOUT)
             try:
-                self.screen.addch(y - 1, x - 1, ' ', curses.A_STANDOUT)
+                self.screen.addch(self.max_y - 1, self.max_x - 1, ' ',
+                                  curses.A_STANDOUT)
             except curses.error:
                 pass
         except curses.error:

@@ -19,33 +19,25 @@ class SelectView(GenericView):
         self.user_password = None
         self.num_options = 2
 
-    def show(self, screen):
+    def set_start_params(self):
         self.invalid_password = False
-        self.running = True
-        self.screen = screen
         if self.user_password is not None:
             if channel_connection_info(self.global_state.current_channel["id"],
                                        self.user_password).status_code == 200:
                 self.delete_current_channel()
             else:
                 self.invalid_password = True
-        while self.running:
-            self.draw()
-            self.event_loop()
 
     def draw(self):
-        self.screen.clear()
-        self.screen.border(0)
-
-        y, x = self.screen.getmaxyx()
         try:
             if self.invalid_password:
                 wrong_password_text = "Nieprawidłowe hasło"
-                self.screen.addstr(5, (x - len(wrong_password_text)) // 2,
-                                   wrong_password_text, curses.A_STANDOUT)
+                self.screen.addstr(
+                    5, (self.max_x - len(wrong_password_text)) // 2,
+                    wrong_password_text, curses.A_STANDOUT)
             else:
-                self.screen.addstr(1, (x - len(self.title)) // 2, self.title,
-                                   curses.A_STANDOUT)
+                self.screen.addstr(1, (self.max_x - len(self.title)) // 2,
+                                   self.title, curses.A_STANDOUT)
 
                 self.screen.addstr(2, 3, self.top_text, curses.A_NORMAL)
 
@@ -63,11 +55,12 @@ class SelectView(GenericView):
                     pos += 1
 
                 self.screen.addstr(
-                    y - 1, 0,
-                    self.bottom_text + ' ' * (x - 1 - len(self.bottom_text)),
+                    self.max_y - 1, 0, self.bottom_text + ' ' *
+                    (self.max_x - 1 - len(self.bottom_text)),
                     curses.A_STANDOUT)
                 try:
-                    self.screen.addch(y - 1, x - 1, ' ', curses.A_STANDOUT)
+                    self.screen.addch(self.max_y - 1, self.max_x - 1, ' ',
+                                      curses.A_STANDOUT)
                 except curses.error:
                     pass
         except curses.error:
@@ -84,6 +77,7 @@ class SelectView(GenericView):
                        self.user_password)
         self.current_channel_id = "Brak"
         self.global_state.current_channel_name = None
+        self.global_state.current_channel = None
         self.user_password = None
 
     def event_loop(self):

@@ -15,19 +15,13 @@ class ListView(GenericView):
         self.top_text = top_text
         self.cursor_pos = [0, 0]
 
-    def show(self, screen):
-        self.running = True
-        self.screen = screen
+    def set_start_params(self):
         channels = self.global_state.channels
         self.item_list = [
             f"{channel['id']}: {channel['name']}" for channel in channels
         ]
-
-        while self.running:
-            self.set_max_y_x()
-            self.set_cursor_max()
-            self.draw()
-            self.event_loop()
+        if self.global_state.current_channel is None:
+            self.cursor_pos = [0, 0]
 
     def draw(self):
         self.screen.clear()
@@ -80,20 +74,17 @@ class ListView(GenericView):
             self.set_choice()
             self.running = False
 
-    def set_max_y_x(self):
-        self.max_y, self.max_x = self.screen.getmaxyx()
-        self.max_y -= 2
-
     def set_cursor_max(self):
-
+        self.max_y -= 2
         last_column_length = len(self.item_list) % self.max_y
-        self.current_cursor_max_width = len(self.item_list) // self.max_y
+        self.current_cursor_max_width = max(
+            len(self.item_list) // self.max_y, 1)
         if (last_column_length > self.cursor_pos[1]):
             self.current_cursor_max_width += 1
 
         self.current_cursor_max_height = self.max_y - 1
         if self.cursor_pos[0] == (len(self.item_list) // self.max_y):
-            self.current_cursor_max_height = last_column_length
+            self.current_cursor_max_height = max(last_column_length, 1)
 
     def set_choice(self):
         index = (self.max_y * self.cursor_pos[0] + self.cursor_pos[1])

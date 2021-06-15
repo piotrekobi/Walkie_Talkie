@@ -19,22 +19,37 @@ class GenericView:
     def show(self, screen):
         self.running = True
         self.screen = screen
+        self.set_start_params()
 
         while self.running:
+            self.clear_screen()
+            self.max_y, self.max_x = self.screen.getmaxyx()
+            self.set_cursor_max()
             self.draw()
             self.event_loop()
 
-    def draw(self):
+        self.end_view()
+
+    def set_cursor_max(self):
+        pass
+
+    def set_start_params(self):
+        pass
+
+    def end_view(self):
+        pass
+
+    def clear_screen(self):
         self.screen.clear()
         self.screen.border(0)
 
-        y, x = self.screen.getmaxyx()
-
-        self.screen.addstr(1, (x - len(self.title)) // 2, self.title,
+    def draw(self):
+        self.screen.addstr(1, (self.max_x - len(self.title)) // 2, self.title,
                            curses.A_STANDOUT)
 
         self.screen.addstr(
-            y - 1, 0, self.bottom_text + ' ' * (x - 1 - len(self.bottom_text)),
+            self.max_y - 1, 0,
+            self.bottom_text + ' ' * (self.max_x - 1 - len(self.bottom_text)),
             curses.A_STANDOUT)
         try:
             self.screen.addch(y - 1, x - 1, ' ', curses.A_STANDOUT)
