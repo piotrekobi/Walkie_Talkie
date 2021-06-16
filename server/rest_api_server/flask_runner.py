@@ -6,6 +6,7 @@ from rest_api.channel_func import delete_channel, channel_info, detailed_channel
 channels = load_channels("./data/channels.json")
 
 
+# Klasa obsługuje metody get i post o adresach "/channels"
 class Channels(Resource):
     def get(self):
         return [{
@@ -18,6 +19,7 @@ class Channels(Resource):
         return create_channel(request.get_json(), channels)
 
 
+# Klasa obsługuje metody get i delete o adresach "/channels/channel_id"
 class ChannelId(Resource):
     def get(self, channel_id):
         return channel_info(channel_id, channels)
@@ -26,6 +28,7 @@ class ChannelId(Resource):
         return delete_channel(channel_id, channels)
 
 
+# Klasa obsługuje metody get i delete o adresach "/channels/channel_id/password"
 class ChannelIdPass(Resource):
     def get(self, channel_id, password):
         return detailed_channel_info(channel_id, channels, password)

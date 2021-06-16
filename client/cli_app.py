@@ -2,7 +2,8 @@ import curses
 from rest_api_func import get_channels
 from cli_views.generic_view import GenericView
 
-
+# Klasa inicjalizuje odpowiednie elementy biblioteki
+# curses i tworzy drzewo widoków
 class CLIApp:
     screen: any
     tree: GenericView
