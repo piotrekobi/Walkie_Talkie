@@ -47,19 +47,19 @@ class Channel(Thread):
 
             for j in range(len(input_arr)):
                 if i != j and input_arr[j] is not None:
-                    try:
-                        if len(array_sum) < len(input_arr[j]):
-                            array_new_sum = input_arr[j].copy()
-                            array_new_sum[:len(array_sum)] += array_sum
-                        else:
-                            array_new_sum = array_sum.copy()
-                            array_new_sum[:len(input_arr[j])] += input_arr[j]
+                    if len(array_sum) < len(input_arr[j]):
+                        array_new_sum = input_arr[j].copy()
+                        array_new_sum[:len(array_sum)] += array_sum
+                    else:
+                        array_new_sum = array_sum.copy()
+                        array_new_sum[:len(input_arr[j])] += input_arr[j]
 
-                        array_sum = array_new_sum
-                    except Full:
-                        pass
+                    array_sum = array_new_sum
 
-            q.put_nowait(array_sum)
+            try:
+                q.put_nowait(array_sum)
+            except Full:
+                pass
 
     def close(self):
         self.running = False
