@@ -2,12 +2,12 @@ import json
 
 
 def load_channels(filename):
-    with open(filename, "r") as f:
+    with open("/usr/src/api_server/data/channels.json", "r") as f:
         return json.load(f)
 
 
 def save_channels(filename, channels):
-    with open(filename, "w") as f:
+    with open("/usr/src/api_server/data/channels.json", "w") as f:
         json.dump(channels, f)
 
 

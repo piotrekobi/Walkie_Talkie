@@ -3,7 +3,7 @@ from flask_restful import Api, Resource
 
 from rest_api.channel_func import delete_channel, channel_info, detailed_channel_info, create_channel, load_channels
 
-channels = load_channels("../server/data/channels.json")
+channels = load_channels("./data/channels.json")
 
 
 class Channels(Resource):

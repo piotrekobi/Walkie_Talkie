@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  sound-server:
+    image: "registry.digitalocean.com/my-private-docker/skps-sound-server:latest"
+    restart: always
+    ports:
+      - "10000:10000"
+      - "10001:10001"
+  rest-api-server:
+    image: "registry.digitalocean.com/my-private-docker/skps-api-server:latest"
+    restart: always
+    ports:
+      - "5000:5000"
