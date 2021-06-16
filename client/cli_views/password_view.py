@@ -2,7 +2,7 @@ import curses
 import curses.textpad
 from cli_views.generic_view import GenericView
 
-
+# Klasa tworząca widok wpisywania hasła
 class PasswordView(GenericView):
     def __init__(
             self,

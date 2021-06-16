@@ -3,7 +3,7 @@ from cli_views.generic_view import GenericView
 from cli_views.password_view import PasswordView
 from rest_api_func import channel_connection_info, delete_channel
 
-
+# Klasa tworząca widok głównego menu
 class SelectView(GenericView):
     def __init__(self,
                  title,

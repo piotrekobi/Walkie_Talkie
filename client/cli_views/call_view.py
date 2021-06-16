@@ -5,7 +5,7 @@ from rest_api_func import channel_connection_info
 from call_controler import CallController
 from config.server import SERVER_URL, MIC_PORT, SPEAKER_PORT, USER_ID
 
-
+# Klasa tworzy widok rozmowy na kanale
 class CallView(GenericView):
     def __init__(self,
                  title,

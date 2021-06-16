@@ -1,6 +1,6 @@
 import curses
 
-
+# Klasa bazowa, po której dziedziczą wszystkie inne widoki
 class GenericView:
     title: str
     screen: any

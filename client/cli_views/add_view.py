@@ -3,7 +3,7 @@ from cli_views.generic_view import GenericView
 from cli_views.password_view import PasswordView
 from rest_api_func import create_channel
 
-
+# Klasa tworzy widok pozwalający na dodawanie nowych kanałów
 class AddView(GenericView):
     def __init__(self, title, global_state, bottom_text=None):
         super().__init__(title, global_state, bottom_text=bottom_text)

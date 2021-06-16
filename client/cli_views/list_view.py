@@ -1,7 +1,7 @@
 import curses
 from cli_views.generic_view import GenericView
 
-
+# Klasa tworząca widok listy dostępnych kanałow, z których można wybrać kanał
 class ListView(GenericView):
     def __init__(
         self,
