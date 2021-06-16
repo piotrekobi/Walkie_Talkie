@@ -42,12 +42,10 @@ class UserSpeaker(Thread):
 
     def loop(self):
         try:
-            parsed, start, channel_start, channel_end = self.queue.get_nowait()
+            parsed = self.queue.get_nowait()
             self.queue.task_done()
             data = parsed.tobytes()
-            # milliseconds = int(round(time.time() * 1000))
             self.connection.send(data)
-            # print('dts:', milliseconds - start, milliseconds - channel_start, milliseconds - channel_end)
         except Empty:
             try:
                 self.connection.send(numpy.array([1.0e-6, 1.0e-6, 1.0e-6, 1.0e-6], dtype='float32').tobytes())

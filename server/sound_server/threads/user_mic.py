@@ -39,9 +39,8 @@ class UserMic(Thread):
             data = self.connection.recv(8192)
             if data == b'$close$':
                 raise ValueError
-            milliseconds = int(round(time.time() * 1000))
             parsed = np.frombuffer(data, dtype='float32')
-            self.queue.put_nowait([parsed, milliseconds, 0, 0])
+            self.queue.put_nowait(parsed)
         except Full:
             pass
         except ValueError:
